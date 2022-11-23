@@ -9,3 +9,6 @@ hehe nein
 
 
 Beim pissen wirds hart
+
+To-Do:
+O Datenbank aufbauen
