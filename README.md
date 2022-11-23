@@ -2,7 +2,7 @@
 Semesterarbeit in Business Analytics
 
 
-Hier mal ein Beispieltext !!!!!!!
+Hier mal ein Beispieltext
 Beispieltext
 
 hehe nein
