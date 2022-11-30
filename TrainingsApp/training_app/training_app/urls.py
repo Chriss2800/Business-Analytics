@@ -15,12 +15,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from . import views
+from django.urls import include
+#from athletes.views import index
+#from athletes.views import create_athlete
+#from athletes.views import create_course
+#from athletes.views import create_training
+#from athletes.views import create_training_data
+
 
 urlpatterns = [
-    #path('admin/', admin.site.urls),
-    path('', views.index, name='index'),
-    path('create_athlete', views.create_athlete, name='create_athlete'),
-    path('create_course', views.create_course, name='create_course'),
-    path('create_training_data', views.create_training_data, name='create_training_data'),
+    path('admin/', admin.site.urls),
+    path('', include('athletes.urls')),
+    #path('create_athlete', create_athlete),
+    #path('create_course', create_course),
+    #path('create_training_data', create_training),
+    #path('create_training_data', create_training_data),
 ]
