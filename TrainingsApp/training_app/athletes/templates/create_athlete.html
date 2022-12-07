@@ -96,11 +96,43 @@
       </form>
       <br></br>
       <a href="{% url 'index'%}" class="btn btn-primary btn-lg active" role="button" aria-disabled="true">Back to home</a>
+      <button onclick="addItem()" class="btn btn-primary btn-lg active" role="button" aria-disabled="true">+</button>
+      <h1>Add Form</h1>
+      <br/><br/>
+      {% if submitted %}
+          Your Athlete was created successfully!!
+      {% else %}
+          <form action="" method=POST>
+              {% csrf_token %}
+              {{ form.as_p }}
+
+              <input type="submit" value="Submit" class="btn btn-primary btn-lg active">
+
+          </form>
+    {%endif%}
     </div>
     <div class="col-sm-2 sidenav">
     </div>
   </div>
 </div>
+
+
+
+<script>
+  function addItem(){
+    let itemName = prompt('Neues Element:');
+    let token = '{{ csrf_token }}';
+
+    let formData = new FormData();
+    formData.append('itemName', itemName);
+    formData.append('csrfmiddlewaretoken', token);
+
+    fetch('/create_athlete/',{
+      method: 'POST',
+      body: formData
+    });
+  }
+</script>
 
 <footer class="container-fluid text-center">
   <p>Training App</p>
