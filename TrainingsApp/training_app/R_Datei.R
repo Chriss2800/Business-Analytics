@@ -3,16 +3,10 @@ library(dbplyr)
 library(RSQLite)
 
 
-<<<<<<< Updated upstream
 file.exists("db.sqlite3") #zum testen ob die File überhaupt vorhanden ist. Kann später raus!
 verbindung <- DBI::dbConnect(RSQLite::SQLite(), "db.sqlite3") #Definition der COnnection von der SQLitedatei "db.sqlite3" mit der Variable "verbindung"
 athleten_tabelle <- tbl(verbindung, "athletes_athletes") #Aus der Verbindung mit "db.sqlite3" wird die Tabelle "athletes_athletes" in die variable "athleten_tabele" gespeichert
-head(athleten_tabelle, n = 10) # Zeigt die ersten 10 Einträge der "athleten_tabelle" Tabelle an. Dient zu Veranschauung, kann später raus.
-=======
-file.exists("db.sqlite3")
-verbindung <- DBI::dbConnect(RSQLite::SQLite(), "db.sqlite3")
-athleten_tabelle <- tbl(verbindung, "athletes_athletes")
-head(athleten_tabelle, n = 10)
+workoutdata<- tbl(verbindung,"athletes_workout_data") #Workout data aus der SQLite extrahieren
+df_workout_data<- data.frame(workoutdata) # Convert dataframe to list using data.frame()
+df <- data.frame(athleten_tabelle) # Convert dataframe to list using data.frame()
 
-src_dbi(verbindung)
->>>>>>> Stashed changes
