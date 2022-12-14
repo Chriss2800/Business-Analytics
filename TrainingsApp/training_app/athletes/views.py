@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from .models import Athletes
 from .forms import AthletesForm
@@ -52,6 +52,12 @@ def create_training_data(request):
         if 'submitted' in request.GET:
             submitted = True
     return render(request, "create_training_data.html", {'form': form, 'submitted':submitted})
+
+
+def delete_athlete(request, athlete_id):
+    athlete = Athletes.objects.get(pk=athlete_id)
+    athlete.delete()
+    return redirect('athletes_list')
 
 
  #if request.method == 'POST':

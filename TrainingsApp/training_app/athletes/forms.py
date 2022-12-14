@@ -36,22 +36,35 @@ class WorkoutForm(ModelForm):
         model = Workout
         fields = '__all__'
 
+        labels = {
+            'description': 'Enter Your Workout Name',            
+        }
+        
         widgets = {
-            'description': forms.TextInput(attrs={'class':'form-control'}),            
+            'description': forms.TextInput(attrs={'class':'form-control', 'placeholder':'e.g. Weight Lifting'}),            
         }
 
 class WorkoutDataForm(ModelForm):
     class Meta:
         model = Workout_data
         fields = '__all__'
+
+        labels = {
+            #'workout': forms.TextInput(attrs={'class':'form-select'}),
+            'pause': 'Enter your pause in minutes',
+            'start': 'Enter your Start Time',
+            'end': 'Enter your End Time',
+            'duration': 'Enter your Duration in minutes',
+            #'date': forms.TextInput(attrs={'class':'form-control'}),
+        }
        
         widgets = {
             #'workout': forms.TextInput(attrs={'class':'form-select'}),
-            'pause': forms.TextInput(attrs={'class':'form-control'}),
-            'start': forms.TextInput(attrs={'class':'form-control'}),
-            'end': forms.TextInput(attrs={'class':'form-control'}),
-            'duration': forms.TextInput(attrs={'class':'form-control'}),
-            'date': forms.TextInput(attrs={'class':'form-control'}),
+            'pause': forms.TextInput(attrs={'class':'form-control', 'placeholder':'5'}),
+            'start': forms.TimeInput(format='hh:mm', attrs={'class':'form-control', 'placeholder':'HH:SS'}),
+            'end': forms.TimeInput(format='hh:mm', attrs={'class':'form-control', 'placeholder':'HH:SS'}),
+            'duration': forms.TextInput(attrs={'class':'form-control', 'placeholder':'120'}),
+            'date': forms.DateInput(format=('%d/%m/%Y'), attrs={'class':'form-control', 'type':'date'}),
         }
 
          

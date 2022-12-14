@@ -78,9 +78,10 @@
             <li class="list-group-item">Gender: {{ athlete.gender }}</li>
             <li class="list-group-item">Height: {{ athlete.height }} cm</li>
             <li class="list-group-item">Weight: {{ athlete.weight }} kg</li>
+            <li class="list-group-item"><a href="{% url 'delete_athlete' athlete.id %}" class="btn btn-danger">Delete Athlete</a></li>
           </ul>
-      </div>
-      {% endfor %}        
+      </div> 
+      {% endfor %}      
     </div>
     <div class="col-sm-2 sidenav">
     </div>

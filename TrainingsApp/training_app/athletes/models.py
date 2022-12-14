@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 # Create your models here.
 
@@ -22,7 +23,7 @@ class Athletes(models.Model):
 
 class Workout(models.Model):
     #athlete = models.ForeignKey(Athletes, blank=True, null=True, on_delete=models.CASCADE)
-    description = models.CharField('Workout description', max_length=200, default='Your Description')
+    description = models.CharField(max_length=200)
     
     def __str__(self):
         return self.description
@@ -30,11 +31,11 @@ class Workout(models.Model):
 class Workout_data(models.Model):
     workout = models.ForeignKey(Workout, blank=True, null=True, on_delete=models.CASCADE)
     athlete = models.ForeignKey(Athletes, blank=True, null=True, on_delete=models.CASCADE)
-    pause = models.IntegerField('Pause')
-    start = models.IntegerField('Start')
-    end = models.IntegerField('End')
-    duration = models.IntegerField('Duration')
-    #date = models.DateField('Date')
+    pause = models.IntegerField()
+    start = models.TimeField(max_length=30)
+    end = models.TimeField(max_length=30)
+    duration = models.IntegerField()
+    date = models.DateField(max_length=30, default=timezone.now)
     
     def __str__(self):
         return self.start

@@ -70,6 +70,7 @@
       <h1>Enter Your Workout Data</h1>
       <hr>
       <h4>Enter your Data</h4>
+      <br/>
       {% if submitted %}
           <h5>Your Workout was created successfully!!</h5>
           <br/><br/>
@@ -78,7 +79,7 @@
           <form action="" method=POST>
               {% csrf_token %}
               {{ form.as_p }}
-              <input type="submit" value="Submit" class="btn btn-primary btn-lg active">
+              <input type="submit" value="Create Workout Data" class="btn btn-primary btn-lg active">
           </form>
       {%endif%}
     </div>
