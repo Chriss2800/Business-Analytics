@@ -52,10 +52,10 @@
     </div>
     <div class="collapse navbar-collapse" id="myNavbar">
       <ul class="nav navbar-nav">
-        <li class="active"><a href="#">Home</a></li>
+        <li><a href="#">Home</a></li>
         <li><a href="{% url 'create_athlete'%}">Create Athlete</a></li>
         <li><a href="{% url 'create_course'%}">Create Training</a></li>
-        <li><a href="{% url 'create_training_data'%}">Create Training Data</a></li>
+        <li class="active"><a href="{% url 'create_training_data'%}">Create Training Data</a></li>
       </ul>
     </div>
   </div>
@@ -67,39 +67,20 @@
     <div class="col-sm-2 sidenav">
     </div>
     <div class="col-sm-8 text-left"> 
-      <h1>Create Training</h1>
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+      <h1>Enter Your Workout Data</h1>
       <hr>
-      <h3>Enter your Data</h3>
-      <form>
-        <div class="form-group">
-            <label for="exampleFormControlSelect2">Activity</label>
-            <select class="form-control" id="exampleFormControlSelect2">
-              <option>Running</option>
-              <option>Cycling</option>
-              <option>Hiking</option>
-            </select>
-          </div>
-        <div class="form-group">
-            <label for="inputAddress">Date</label>
-            <input type="date" class="form-control" id="inputAddress" placeholder="23.03.2022">
-        </div>
-        <div class="form-group">
-            <label for="inputAddress2">Start time</label>
-            <input type="time" class="form-control" id="inputAddress2" placeholder="16:30">
-        </div>
-        <div class="form-group">
-            <label for="inputAddress3">End time</label>
-            <input type="time" class="form-control" id="inputAddress3" placeholder="18:30">
-        </div>
-        <div class="form-group">
-          <label for="inputAddress4">Pause</label>
-          <input type="time" class="form-control" id="inputAddress4" placeholder="00:30">
-        </div>
-        <button type="submit" class="btn btn-primary">Create Training</button>
-      </form>
-      <br></br>
-      <a href="{% url 'index'%}" class="btn btn-primary btn-lg active" role="button" aria-disabled="true">Back to home</a>
+      <h4>Enter your Data</h4>
+      {% if submitted %}
+          <h5>Your Workout was created successfully!!</h5>
+          <br/><br/>
+          <a class="btn btn-secondary" href="{% url 'create_training_data'%}" role="button">Enter another Data</a>
+      {% else %}
+          <form action="" method=POST>
+              {% csrf_token %}
+              {{ form.as_p }}
+              <input type="submit" value="Submit" class="btn btn-primary btn-lg active">
+          </form>
+      {%endif%}
     </div>
     <div class="col-sm-2 sidenav">
     </div>

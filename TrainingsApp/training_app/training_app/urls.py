@@ -16,18 +16,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.urls import include
-#from athletes.views import index
-#from athletes.views import create_athlete
-#from athletes.views import create_course
-#from athletes.views import create_training
-#from athletes.views import create_training_data
-
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('athletes.urls')),
-    #path('create_athlete', create_athlete),
-    #path('create_course', create_course),
-    #path('create_training_data', create_training),
-    #path('create_training_data', create_training_data),
 ]

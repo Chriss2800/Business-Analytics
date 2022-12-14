@@ -52,8 +52,8 @@
     </div>
     <div class="collapse navbar-collapse" id="myNavbar">
       <ul class="nav navbar-nav">
-        <li class="active"><a href="#">Home</a></li>
-        <li><a href="{% url 'create_athlete'%}">Create Athlete</a></li>
+        <li><a href="{% url 'index'%}">Home</a></li>
+        <li class="active"><a href="{% url 'create_athlete'%}">Create Athlete</a></li>
         <li><a href="{% url 'create_course'%}">Create Training</a></li>
         <li><a href="{% url 'create_training_data'%}">Create Training Data</a></li>
       </ul>
@@ -67,73 +67,35 @@
     <div class="col-sm-2 sidenav">
     </div>
     <div class="col-sm-8 text-left"> 
-      <h1>Create Athlete</h1>
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+      <h1>Create your Athlete</h1>
+      <br/>
+      <p>Create your Athlete using the following Form. Enter the Data and Smash the Submit Button</p>
       <hr>
       <h3>Enter your Data</h3>
-      <form>
-        <div class="form-group">
-            <label for="exampleFormControlSelect2">Gender</label>
-            <select class="form-control" id="exampleFormControlSelect2">
-              <option>male</option>
-              <option>female</option>
-              <option>diverse</option>
-            </select>
-          </div>
-        <div class="form-group">
-            <label for="name">Name</label>
-            <input type="name" class="form-control" id="name" placeholder="Name">
-        </div>
-        <div class="form-group">
-            <label for="inputAddress">Weight in kg</label>
-            <input type="number" class="form-control" id="inputAddress" placeholder="80">
-        </div>
-        <div class="form-group">
-          <label for="inputAddress2">Size in cm</label>
-          <input type="number" class="form-control" id="inputAddress2" placeholder="172">
-        </div>
-        <button type="submit" class="btn btn-primary">Create Athlete</button>
-      </form>
-      <br></br>
-      <a href="{% url 'index'%}" class="btn btn-primary btn-lg active" role="button" aria-disabled="true">Back to home</a>
-      <button onclick="addItem()" class="btn btn-primary btn-lg active" role="button" aria-disabled="true">+</button>
-      <h1>Add Form</h1>
-      <br/><br/>
+      <br/>
       {% if submitted %}
-          Your Athlete was created successfully!!
+          <h6>Your Athlete was created successfully!!</h6>
+          <br/>
+          <br/>
+          <a href="{% url 'create_athlete'%}" class="btn btn-info" role="button">Create further Athletes</a>
       {% else %}
           <form action="" method=POST>
               {% csrf_token %}
               {{ form.as_p }}
 
-              <input type="submit" value="Submit" class="btn btn-primary btn-lg active">
+              <input type="submit" value="Create Your Athlete" class="btn btn-primary btn-lg active">
 
           </form>
     {%endif%}
+    <br/>
+    <br/>
+    <be/>
+    <a href="{% url 'athletes_list'%}" class="btn btn-info" role="button">View your Created Athletes</a>
     </div>
     <div class="col-sm-2 sidenav">
     </div>
   </div>
 </div>
-
-
-
-<script>
-  function addItem(){
-    let itemName = prompt('Neues Element:');
-    let token = '{{ csrf_token }}';
-
-    let formData = new FormData();
-    formData.append('itemName', itemName);
-    formData.append('csrfmiddlewaretoken', token);
-
-    fetch('/create_athlete/',{
-      method: 'POST',
-      body: formData
-    });
-  }
-</script>
-
 <footer class="container-fluid text-center">
   <p>Training App</p>
 </footer>
