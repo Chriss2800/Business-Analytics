@@ -15,7 +15,7 @@
     }
     
     /* Set height of the grid so .sidenav can be 100% (adjust as needed) */
-    .row.content {height: 450px}
+    .row.content {height: 9000px}
     
     /* Set gray background color and 100% height */
     .sidenav {
@@ -44,32 +44,32 @@
 <body>
 
 <nav class="navbar navbar-inverse">
-  <div class="container-fluid">
+    <div class="container-fluid">
     <div class="navbar-header">
-      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>                        
-      </button>
+        </button>
     </div>
     <div class="collapse navbar-collapse" id="myNavbar">
-      <ul class="nav navbar-nav">
-        <li class="active"><a href="#">Home</a></li>
+        <ul class="nav navbar-nav">
+        <li><a href="{% url 'index'%}">Home</a></li>
         <li><a href="{% url 'create_athlete'%}">Create Athlete</a></li>
         <li><a href="{% url 'create_course'%}">Create Training</a></li>
         <li class="dropdown" >
-          <a href="" class="dropdown-toggle" data-toggle="dropdown" 
-          role="button" aria-haspopup="true" aria-expanded="false">Training Data<span 
-          class="caret"></span></a>
-          <ul class="dropdown-menu">
-              <li><a href="{% url 'create_training_data'%}">Create Workout</a></li>
-              <li role="separator" class="divider"></li>
-              <li><a href="{% url 'workout_list'%}">View Workout</a></li>
-          </ul>
-      </li>
-      </ul>
+            <a href="" class="dropdown-toggle" data-toggle="dropdown" 
+            role="button" aria-haspopup="true" aria-expanded="false">Training Data<span 
+            class="caret"></span></a>
+            <ul class="dropdown-menu">
+                <li><a href="{% url 'create_training_data'%}">Create Workout</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="{% url 'workout_list'%}">View Workout</a></li>
+            </ul>
+        </li>
+        </ul>
     </div>
-  </div>
+    </div>
 </nav>
 
 <div class="container-fluid text-center">    
@@ -77,16 +77,27 @@
     <div class="col-sm-2 sidenav">
     </div>
     <div class="col-sm-8 text-left"> 
-      <h1>Welcome</h1>
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+      <h1>List of Workout Datas</h1>
+      <p>In the following you find a list of all workout Datas</p>
       <hr>
-      <h3>Test</h3>
-      <p>Lorem ipsum...</p>
+      {% for workout in workout_list %}
+      <div class="card">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">First Name: {{ workout.athlete.first_name }}</li>
+            <li class="list-group-item">Last Name: {{ workout.athlete.last_name }}</li>
+            <li class="list-group-item">Description: {{ workout.workout.description }}</li>
+            <li class="list-group-item">Start Time: {{ workout.start }}</li>
+            <li class="list-group-item">End Time: {{ workout.end }}</li>
+            <li class="list-group-item">Duration: {{ workout.duration }}</li>
+          </ul>
+      </div> 
+      {% endfor %}      
     </div>
     <div class="col-sm-2 sidenav">
     </div>
   </div>
 </div>
+
 
 <footer class="container-fluid text-center">
   <p>Training App</p>

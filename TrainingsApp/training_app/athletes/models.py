@@ -31,11 +31,21 @@ class Workout(models.Model):
 class Workout_data(models.Model):
     workout = models.ForeignKey(Workout, blank=True, null=True, on_delete=models.CASCADE)
     athlete = models.ForeignKey(Athletes, blank=True, null=True, on_delete=models.CASCADE)
-    pause = models.IntegerField()
+    #pause = models.TimeField(max_length=30)
     start = models.TimeField(max_length=30)
     end = models.TimeField(max_length=30)
-    duration = models.IntegerField()
+    #duration = models.IntegerField()
     date = models.DateField(max_length=30, default=timezone.now)
     
     def __str__(self):
         return self.start
+
+
+
+    @property
+    def duration(self):
+        end = self.end.hour*60 + self.end.minute
+        start = self.start.hour*60 + self.start.minute
+        #pause = self.pause.hour*60 + self.pause.minute
+        duration = end - start
+        return duration

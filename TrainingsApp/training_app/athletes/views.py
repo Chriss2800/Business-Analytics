@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from .models import Athletes
+from .models import Workout_data
 from .forms import AthletesForm
 from .forms import WorkoutForm
 from .forms import WorkoutDataForm
@@ -26,6 +27,10 @@ def create_athlete(request):
 def athletes_list(request):
     athletes_list = Athletes.objects.all
     return render(request, "athletes_list.html", {'athletes_list':athletes_list})
+
+def workout_list(request):
+    workout_list = Workout_data.objects.all
+    return render(request, "workout_list.html", {'workout_list':workout_list})
 
 def create_course(request):
     submitted = False
