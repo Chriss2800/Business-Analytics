@@ -23,13 +23,76 @@ full_dataset = (right_join(athletes_athletes, workout_and_workout_data, by = c("
 #print(full_dataset)
 
 
-#all workouts of a specific athlete
+#ALL WORKOUTS OF A SPECIFIC ATHLET
+
 name = "Daniel"
-colums_for_all_workouts_specific_athlete = full_dataset[,c("first_name","last_name", "description","start","end","date")]
+colums_for_all_workouts_specific_athlete = select(full_dataset, first_name, last_name, description, start, end, date)
 all_workouts_specific_athlete = colums_for_all_workouts_specific_athlete[colums_for_all_workouts_specific_athlete$first_name == name,]
+#check if the dataframe gives all_workouts_specific_athlete
 print(all_workouts_specific_athlete)
 
-#average over training duration of a certain athlete over all trainings
+#AVERAGE OVER TRAINING DURATION OF A CERTAIN ATHLETE OVER ALL TRAININGS 
+
+training_times = select(all_workouts_specific_athlete, date, start, end)
+#print((select(all_workouts_specific_athlete, date, start, end)))
+
+sum_training_duration = 0
+counter=0
+
+for(i in 1:nrow(training_times)) {       # for-loop over rows
+  start_time_training = paste(toString(training_times$date[i]), toString(training_times$start[i]))
+  end_time_training = paste(toString(training_times$date[i]), toString(training_times$end[i]))
+  sum_training_duration = sum_training_duration + get_duration_of_training(start_time = start_time_training, end_time = end_time_training)
+  counter=i
+}
+
+get_duration_of_training <- function(start_time, end_time) {
+  return(difftime(end_time, start_time, units = "mins"))
+}
+#print(sum_training_duration)
+average_training_duration= sum_training_duration/counter
+
+#print the sentence 
+#print(paste0("The average training duration of the athlet over all trainings is: ",toString(average_training_duration)))
+print(sprintf("The average training duration of the athlet over all trainings is: %s min",toString(average_training_duration)))
+
+#AVERAGE OVER TRAINING DURATION OF A SPECIFIC TRAINING OF AN ATHLETE 
+
+description = "Joggen"
+specific_workout_of_an_athlete = all_workouts_specific_athlete[all_workouts_specific_athlete$description == description,]
+
+#check if the dataframe gives all_workouts_specific_athlete
+print(specific_workout_of_an_athlete)
+
+training_times_specific_workout = select(specific_workout_of_an_athlete, date, start, end)
+
+sum_specific_training_duration = 0
+counter_specific_training=0
+
+for(o in 1:nrow(training_times_specific_workout)) {       # for-loop over rows
+  start_time_specific_training = paste(toString(training_times_specific_workout$date[o]), toString(training_times_specific_workout$start[o]))
+  end_time_specific_training = paste(toString(training_times_specific_workout$date[o]), toString(training_times_specific_workout$end[o]))
+  sum_specific_training_duration = sum_specific_training_duration + get_duration_of_training(start_time = start_time_specific_training, end_time = end_time_specific_training)
+  counter_specific_training=o
+}
+
+#print(sum_specific_training_duration)
+average_specific_training_duration= sum_specific_training_duration/counter_specific_training
+
+print(sprintf("The average training duration of a specific training of an athlete is: %s min",toString(average_specific_training_duration)))
+
+#AVERAGE OF THE TRAINING DURATION OF A CERTAIN TRAINING OVER ALL ATHLETS
+
+
+
+
+
+
+
+
+
+
+
 
 
 #result = left_join( dbGetQuery(conn, "SELECT * FROM athletes_workout_data") , dbGetQuery(conn, "SELECT * FROM athletes_athletes"), by = c("id"))
@@ -43,4 +106,4 @@ print(all_workouts_specific_athlete)
 #  print(difftime(start_time, end_time, units = "mins"))
 #}
 
-
+#dbDisconnect()
