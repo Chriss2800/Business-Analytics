@@ -15,14 +15,14 @@ class Athletes(models.Model):
     last_name = models.CharField(max_length=200)
     height = models.IntegerField()
     weight = models.IntegerField()
-    #birth_date = models.DateField('Your Birthdate', default=2022-0o1-0o1)
 
     def __str__(self):
-        return self.first_name
+        return self.first_name + " " + self.last_name
 
 
 class Workout(models.Model):
     #athlete = models.ForeignKey(Athletes, blank=True, null=True, on_delete=models.CASCADE)
+    designation = models.CharField(max_length=50)
     description = models.CharField(max_length=200)
     
     def __str__(self):

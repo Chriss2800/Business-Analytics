@@ -1,0 +1,13 @@
+{% extends 'main.html' %}
+{% block content %}
+  <h2>Update your selected workout data</h2>
+  <hr>
+  <br/>
+  <form method=POST>
+    {% csrf_token %}
+    {{ form.as_p }}
+    <br/>
+    <input type="submit" value="Update Workout Data" class="btn btn-secondary">
+  </form>
+  <br/>
+{% endblock %}

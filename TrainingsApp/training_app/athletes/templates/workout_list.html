@@ -1,125 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <title>Training Application</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-  <!--        <link href="dist/css/bootstrap-navbar-dropdowns.min.css" rel="stylesheet">-->
-  <link href="https://cdn.jsdelivr.net/gh/fontenele/bootstrap-navbar-dropdowns@5.0.2/dist/css/bootstrap-navbar-dropdowns.min.css" rel="stylesheet">
-  <style>
-    /* Remove the navbar's default margin-bottom and rounded borders */ 
-    .navbar {
-      margin-bottom: 0;
-      border-radius: 0;
-    }
+{% extends 'main.html' %}
+{% block content %}
+  <h1>List of Workout Datas</h1>
+  <p>In the following you find a list of all workout Datas</p>
+  <hr>
+  {% for workout in workout_list %}
+  <div class="panel panel-default">
+    <div class="panel-heading"><strong>Workout {{ workout.id }}</strong></div>
+    <div class="panel-body">
+      <ul class="list-group">
+        <li class="list-group-item">Designation: {{ workout.designation }}</li>
+        <li class="list-group-item">Description: {{ workout.description }}</li>
+        <li class="list-group-item"><a href="{% url 'delete_workout' workout.id %}" class="btn btn-danger">Delete Workout</a><p></p><a href="{% url 'update_workout' workout.id %}" class="btn btn-default">Update Workout</a></li>
+      </ul>
+    </div>
+  </div> 
+  {% endfor %}   
+{% endblock %}   
     
-    /* Set height of the grid so .sidenav can be 100% (adjust as needed) */
-    .row.content {height: 9000px}
-    
-    /* Set gray background color and 100% height */
-    .sidenav {
-      padding-top: 20px;
-      background-color: #f1f1f1;
-      height: 100%;
-    }
-    
-    /* Set black background color, white text and some padding */
-    footer {
-      background-color: #555;
-      color: white;
-      padding: 15px;
-    }
-    
-    /* On small screens, set height to 'auto' for sidenav and grid */
-    @media screen and (max-width: 767px) {
-      .sidenav {
-        height: auto;
-        padding: 15px;
-      }
-      .row.content {height:auto;} 
-    }
-  </style>
-</head>
-<body>
-
-<nav class="navbar navbar-inverse">
-    <div class="container-fluid">
-    <div class="navbar-header">
-        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>                        
-        </button>
-    </div>
-    <div class="collapse navbar-collapse" id="myNavbar">
-        <ul class="nav navbar-nav">
-        <li><a href="{% url 'index'%}">Home</a></li>
-        <li><a href="{% url 'create_athlete'%}">Create Athlete</a></li>
-        <li><a href="{% url 'create_course'%}">Create Training</a></li>
-        <li class="dropdown" >
-            <a href="" class="dropdown-toggle" data-toggle="dropdown" 
-            role="button" aria-haspopup="true" aria-expanded="false">Training Data<span 
-            class="caret"></span></a>
-            <ul class="dropdown-menu">
-                <li><a href="{% url 'create_training_data'%}">Create Workout</a></li>
-                <li role="separator" class="divider"></li>
-                <li><a href="{% url 'workout_list'%}">View Workout</a></li>
-                <li role="separator" class="divider"></li>
-                <li><a href="http://127.0.0.1:4577">Grafic</a></li>
-            </ul>
-        </li>
-        </ul>
-    </div>
-    </div>
-</nav>
-
-<div class="container-fluid text-center">    
-  <div class="row content">
-    <div class="col-sm-2 sidenav">
-    </div>
-    <div class="col-sm-8 text-left"> 
-      <h1>List of Workout Datas</h1>
-      <p>In the following you find a list of all workout Datas</p>
-      <hr>
-      {% for workout in workout_list %}
-      <div class="card">
-        <ul class="list-group list-group-flush">
-            <li class="list-group-item">First Name: {{ workout.athlete.first_name }}</li>
-            <li class="list-group-item">Last Name: {{ workout.athlete.last_name }}</li>
-            <li class="list-group-item">Description: {{ workout.workout.description }}</li>
-            <li class="list-group-item">Start Time: {{ workout.start }}</li>
-            <li class="list-group-item">End Time: {{ workout.end }}</li>
-            <li class="list-group-item">Duration: {{ workout.duration }}</li>
-          </ul>
-      </div> 
-      {% endfor %}      
-    </div>
-    <div class="col-sm-2 sidenav">
-    </div>
-  </div>
-</div>
-
-
-<footer class="container-fluid text-center">
-  <p>Training App</p>
-</footer>
-
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-                integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-                crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
-                integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
-                crossorigin="anonymous"></script>
-        <!--        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>-->
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
-                integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd"
-                crossorigin="anonymous"></script>
-
-        <script src="https://cdn.jsdelivr.net/gh/fontenele/bootstrap-navbar-dropdowns@5.0.2/dist/js/bootstrap-navbar-dropdowns.min.js"></script>
-        <script>
-            $('.navbar').navbarDropdown({theme: 'bs3', trigger: 'mouseover'});
-        </script>
-
-</body>
-</html>
