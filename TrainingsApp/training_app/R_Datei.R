@@ -164,6 +164,7 @@ ggplot(data = final_list_specific_training, aes(y=duration)) +
 
 
 
+
 #get_duration_of_training <- function(start_time, end_time) {
 #  print(difftime(start_time, end_time, units = "mins"))
 #}
