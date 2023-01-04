@@ -133,16 +133,25 @@ print(specific_training_over_all_athletes)
 
 training_times_specific_training = select(specific_training_over_all_athletes, date, start, end)
 
-list_specific_training <- list()
+list_specific_training <- matrix()
 
 for (a in 1:nrow(training_times_specific_training)) {       # for-loop over rows
   start_time_certain_training = paste(toString(training_times_specific_training$date[a]), toString(training_times_specific_training$start[a]))
   end_time_certain_training = paste(toString(training_times_specific_training$date[a]), toString(training_times_specific_training$end[a]))
   list_specific_training [a] = get_duration_of_training(start_time = start_time_certain_training, end_time = end_time_certain_training)
 }
-print(list_specific_training)
 
-ggplot(list_specific_training,)
+column_list_specific_training = data.frame(list_specific_training)
+final_list_specific_training =cbind(specific_training_over_all_athletes,column_list_specific_training)
+
+#Benenne Spalte list_specific_training in duration um
+names(final_list_specific_training)[names(final_list_specific_training) =="list_specific_training"] <- "duration"
+print(final_list_specific_training)
+
+
+#ggplot
+ggplot(data = final_list_specific_training, aes(y=duration)) +
+  geom_bar()
 
 #AVERAGE OF THE TRAINING DURATION OVER ALL ATHLETES (I.E. PER ATHLETE AVERAGE OF THE TRAINING DURATION OVER ALL TRAININGS)
 
