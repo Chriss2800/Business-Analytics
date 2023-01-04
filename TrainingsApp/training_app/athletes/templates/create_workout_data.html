@@ -1,0 +1,19 @@
+{% extends 'main.html' %}
+{% block content %}
+  <h1>Enter Your Workout Data</h1>
+  <hr>
+  <h4>Enter your Data</h4>
+  <br/>
+  {% if submitted %}
+      <h5>Your Workout was created successfully!!</h5>
+      <br/><br/>
+      <a href="{% url 'create_workout_data'%}" class="btn btn-primary btn-lg active" role="button">Enter another Data</a>
+  {% else %}
+      <form action="" method=POST>
+          {% csrf_token %}
+          {{ form.as_p }}
+          <input type="submit" value="Create Workout Data" class="btn btn-primary btn-lg active">
+      </form>
+  {%endif%}
+{% endblock %}
+    

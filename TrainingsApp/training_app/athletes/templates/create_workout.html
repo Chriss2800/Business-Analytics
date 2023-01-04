@@ -1,0 +1,22 @@
+{% extends 'main.html' %}
+{% block content %}
+  <h1>Create your Workout</h1>
+  <br/>
+  <p>Enter the Workout Description and Smash the Submit Button</p>
+  <hr>
+  <h3>Enter your Data</h3>
+  <br/><br/>
+  {% if submitted %}
+      <h5>Your Workout was created successfully!!</h5>
+      <br/><br/>
+      <a href="{% url 'create_workout'%}" class="btn btn-primary btn-lg active" role="button">Create Another Workout</a>
+  {% else %}
+      <form action="" method=POST>
+          {% csrf_token %}
+          {{ form.as_p }}
+          <br/>
+          <input type="submit" value="Create Training" class="btn btn-primary btn-lg active">
+      </form>
+  {%endif%}
+{% endblock %}
+      

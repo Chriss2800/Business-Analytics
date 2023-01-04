@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Training Application</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <!--        <link href="dist/css/bootstrap-navbar-dropdowns.min.css" rel="stylesheet">-->
+  <link href="https://cdn.jsdelivr.net/gh/fontenele/bootstrap-navbar-dropdowns@5.0.2/dist/css/bootstrap-navbar-dropdowns.min.css" rel="stylesheet">
+  <style>
+
+    body{
+      margin-top: 50px;
+    }
+    
+    /* Set black background color, white text and some padding */
+    footer {
+      background-color: #585858;
+      color: white;
+      padding: 10px;
+      position:fixed;
+      bottom: 0;
+      width: 100%;
+    }
+
+    #box1 {
+      background-image: linear-gradient(to right bottom, #81DAF5, #585858);
+      height: 95vh;
+      padding-bottom: 15px;
+      margin-bottom: 15px;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-inverse navbar-fixed-top">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>                        
+      </button>
+    </div>
+    <div class="collapse navbar-collapse">
+      <ul class="nav navbar-nav">
+        <li><a href="{% url 'index'%}">Home</a></li>
+        <li class="dropdown" >
+          <a href="" class="dropdown-toggle" data-toggle="dropdown" 
+          role="button" aria-haspopup="true" aria-expanded="false">Athletes<span 
+          class="caret"></span></a>
+          <ul class="dropdown-menu">
+              <li><a href="{% url 'create_athlete'%}">Create Athlete</a></li>
+              <li role="separator" class="divider"></li>
+              <li><a href="{% url 'athletes_list'%}">View Athletes</a></li>
+          </ul>
+        </li>
+        <li class="dropdown" >
+          <a href="" class="dropdown-toggle" data-toggle="dropdown" 
+          role="button" aria-haspopup="true" aria-expanded="false">Workouts<span 
+          class="caret"></span></a>
+          <ul class="dropdown-menu">
+              <li><a href="{% url 'create_workout'%}">Create Workout</a></li>
+              <li role="separator" class="divider"></li>
+              <li><a href="{% url 'workout_list'%}">View Workouts</a></li>
+          </ul>
+        </li>
+        <li class="dropdown" >
+          <a href="" class="dropdown-toggle" data-toggle="dropdown" 
+          role="button" aria-haspopup="true" aria-expanded="false">Workout Data<span 
+          class="caret"></span></a>
+          <ul class="dropdown-menu">
+              <li><a href="{% url 'create_workout_data'%}">Create Workout Data</a></li>
+              <li role="separator" class="divider"></li>
+              <li><a href="{% url 'workout_data_list'%}">View Workout Data</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div id="box1" class="container-fluid text-center">    
+  
+    <div class="col-sm-2 sidenav">
+    </div>
+    <div class="col-sm-8 text-left"> 
+        {% block content %}
+
+        {% endblock %}
+    </div>
+    <div class="col-sm-2 sidenav">
+    </div>
+  
+</div>
+
+
+
+<footer class="container-fluid text-center">
+  <p>Training App</p>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+                integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+                crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+                integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+                crossorigin="anonymous"></script>
+        <!--        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>-->
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
+                integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd"
+                crossorigin="anonymous"></script>
+
+        <script src="https://cdn.jsdelivr.net/gh/fontenele/bootstrap-navbar-dropdowns@5.0.2/dist/js/bootstrap-navbar-dropdowns.min.js"></script>
+        <script>
+            $('.navbar').navbarDropdown({theme: 'bs3', trigger: 'mouseover'});
+        </script>
+
+        
+
+</body>
+</html>

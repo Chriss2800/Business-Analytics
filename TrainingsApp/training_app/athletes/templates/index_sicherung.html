@@ -8,42 +8,30 @@
   <!--        <link href="dist/css/bootstrap-navbar-dropdowns.min.css" rel="stylesheet">-->
   <link href="https://cdn.jsdelivr.net/gh/fontenele/bootstrap-navbar-dropdowns@5.0.2/dist/css/bootstrap-navbar-dropdowns.min.css" rel="stylesheet">
   <style>
-    /* Remove the navbar's default margin-bottom and rounded borders */ 
-    .navbar {
-      margin-bottom: 0;
-      border-radius: 0;
-    }
-    
-    /* Set height of the grid so .sidenav can be 100% (adjust as needed) */
-    .row.content {height: 450px}
-    
-    /* Set gray background color and 100% height */
-    .sidenav {
-      padding-top: 20px;
-      background-color: #f1f1f1;
-      height: 100%;
+
+    body{
+      margin-top: 50px;
     }
     
     /* Set black background color, white text and some padding */
     footer {
-      background-color: #555;
+      background-color: #585858;
       color: white;
-      padding: 15px;
+      padding: 10px;
+      position:fixed;
+      bottom: 0;
+      width: 100%;
     }
-    
-    /* On small screens, set height to 'auto' for sidenav and grid */
-    @media screen and (max-width: 767px) {
-      .sidenav {
-        height: auto;
-        padding: 15px;
-      }
-      .row.content {height:auto;} 
+
+    #box1 {
+      background-image: linear-gradient(to right bottom, #81DAF5, #585858);
+      height: 95vh;
     }
   </style>
 </head>
 <body>
 
-<nav class="navbar navbar-inverse">
+<nav class="navbar navbar-inverse navbar-fixed-top">
   <div class="container-fluid">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
@@ -55,14 +43,32 @@
     <div class="collapse navbar-collapse" id="myNavbar">
       <ul class="nav navbar-nav">
         <li class="active"><a href="#">Home</a></li>
-        <li><a href="{% url 'create_athlete'%}">Create Athlete</a></li>
-        <li><a href="{% url 'create_course'%}">Create Training</a></li>
         <li class="dropdown" >
           <a href="" class="dropdown-toggle" data-toggle="dropdown" 
-          role="button" aria-haspopup="true" aria-expanded="false">Training Data<span 
+          role="button" aria-haspopup="true" aria-expanded="false">Athletes<span 
           class="caret"></span></a>
           <ul class="dropdown-menu">
-              <li><a href="{% url 'create_training_data'%}">Create Workout</a></li>
+              <li><a href="{% url 'create_athlete'%}">Create Athlete</a></li>
+              <li role="separator" class="divider"></li>
+              <li><a href="{% url 'athletes_list'%}">View Athletes</a></li>
+          </ul>
+        </li>
+        <li class="dropdown" >
+          <a href="" class="dropdown-toggle" data-toggle="dropdown" 
+          role="button" aria-haspopup="true" aria-expanded="false">Workouts<span 
+          class="caret"></span></a>
+          <ul class="dropdown-menu">
+              <li><a href="{% url 'create_workout'%}">Create Workout</a></li>
+              <li role="separator" class="divider"></li>
+              <li><a href="{% url 'workout_list'%}">View Workouts</a></li>
+          </ul>
+        </li>
+        <li class="dropdown" >
+          <a href="" class="dropdown-toggle" data-toggle="dropdown" 
+          role="button" aria-haspopup="true" aria-expanded="false">Workout Data<span 
+          class="caret"></span></a>
+          <ul class="dropdown-menu">
+              <li><a href="{% url 'create_workout_data'%}">Create Workout Data</a></li>
               <li role="separator" class="divider"></li>
               <li><a href="{% url 'workout_list'%}">View Workout</a></li>
               <li role="separator" class="divider"></li>
@@ -74,8 +80,8 @@
   </div>
 </nav>
 
-<div class="container-fluid text-center">    
-  <div class="row content">
+<div id="box1" class="container-fluid text-center">    
+  
     <div class="col-sm-2 sidenav">
     </div>
     <div class="col-sm-8 text-left"> 
@@ -87,7 +93,7 @@
     </div>
     <div class="col-sm-2 sidenav">
     </div>
-  </div>
+  
 </div>
 
 <footer class="container-fluid text-center">
@@ -109,6 +115,8 @@
         <script>
             $('.navbar').navbarDropdown({theme: 'bs3', trigger: 'mouseover'});
         </script>
+
+        
 
 </body>
 </html>
