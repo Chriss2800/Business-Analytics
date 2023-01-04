@@ -155,7 +155,75 @@ ggplot(data = final_list_specific_training, aes(y=duration)) +
 
 #AVERAGE OF THE TRAINING DURATION OVER ALL ATHLETES (I.E. PER ATHLETE AVERAGE OF THE TRAINING DURATION OVER ALL TRAININGS)
 
+#print(full_dataset)
+training_times_full_dataset = select(full_dataset, first_name, last_name, date, start, end)
+print(training_times_full_dataset)
 
+
+list_training_duration <- matrix()
+
+for (a in 1:nrow(training_times_full_dataset)) {       # for-loop over rows
+  start_time_full_training = paste(toString(training_times_full_dataset$date[a]), toString(training_times_full_dataset$start[a]))
+  end_time_full_training = paste(toString(training_times_full_dataset$date[a]), toString(training_times_full_dataset$end[a]))
+  list_training_duration [a] = get_duration_of_training(start_time = start_time_full_training, end_time = end_time_full_training)
+}
+
+column_list_full_training = data.frame(list_training_duration)
+final_list_full_training =cbind(training_times_full_dataset,column_list_full_training)
+
+print(final_list_full_training)
+
+##########################################################################################
+#final_list_full_training$new <- rowMeans(final_list_full_training[ , c(1,2)], na.rm=TRUE)
+#sum_training_duration = 0
+#counter=0
+
+
+#for(i in 1:nrow(training_times_full_dataset)) {       # for-loop over rows
+#  start_time_full_training = paste(toString(training_times_full_dataset$date[i]), toString(training_times_full_dataset$start[i]))
+#  end_time_full_training = paste(toString(training_times_full_dataset$date[i]), toString(training_times_full_dataset$end[i]))
+#  sum_full_training_duration = sum_training_duration + get_duration_of_training(start_time = start_time_full_training, end_time = end_time_full_training)
+#  counter_full=i
+#}
+
+# Dataframe mit 0 Zeilen und 3 Spalten erstellen
+df <- data.frame(matrix(ncol = 2, nrow = 0))
+# Spaltennamen bereitstellen
+colnames(df) <- c('vorname', 'average training duration')
+
+all_names = list(unique(final_list_full_training[c("first_name")]))
+for(name in all_names) {       # for-loop over rows
+  var1<-name
+  #print(var1)
+  
+  for(j in 1:nrow(final_list_full_training)) {       # for-loop over rows
+    #print(final_list_full_training$first_name[j])
+    if(final_list_full_training$first_name[j] == var1){
+      print(var1)
+      print("xeaz")
+    }
+    #if(final_list_full_training$first_name[j] == var1){
+    #start_time_full_training = paste(toString(final_list_full_training$date[j]), toString(final_list_full_training$start[j]))
+    #end_time_full_training = paste(toString(final_list_full_training$date[j]), toString(final_list_full_training$end[j]))
+    #sum_full_training_duration = sum_training_duration + get_duration_of_training(start_time = start_time_full_training, end_time = end_time_full_training)
+    #counter_full=j
+    #}
+  }
+}
+
+print(final_list_full_training)
+
+
+#Funktion um den Zeitunterschied zwischen zwei Zeiten zu berechnen
+#get_duration_of_training <- function(start_time, end_time) {
+#  return(difftime(end_time, start_time, units = "mins"))
+#}
+#print(sum_training_duration)
+#average_training_duration= sum_training_duration/counter_full
+
+#print the sentence 
+#print(paste0("The average training duration of the athlet over all trainings is: ",toString(average_training_duration)))
+#print(sprintf("The average training duration of %s over all trainings is: %s min",name, toString(average_training_duration)))
 
 
 
