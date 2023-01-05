@@ -30,7 +30,7 @@ name = "Daniel"
 colums_for_all_workouts_specific_athlete = select(full_dataset, first_name, last_name, description, start, end, date)
 all_workouts_specific_athlete = colums_for_all_workouts_specific_athlete[colums_for_all_workouts_specific_athlete$first_name == name,]
 #check if the dataframe gives all_workouts_specific_athlete
-print(all_workouts_specific_athlete)
+#print(all_workouts_specific_athlete)
 
 #AVERAGE OVER TRAINING DURATION OF A CERTAIN ATHLETE OVER ALL TRAININGS 
 
@@ -64,7 +64,7 @@ description = "Joggen"
 specific_workout_of_an_athlete = all_workouts_specific_athlete[all_workouts_specific_athlete$description == description,]
 
 #check if the dataframe gives all_workouts_specific_athlete
-print(specific_workout_of_an_athlete)
+#print(specific_workout_of_an_athlete)
 
 training_times_specific_workout = select(specific_workout_of_an_athlete, date, start, end)
 
@@ -88,7 +88,7 @@ print(sprintf("The average training duration of %s of %s is: %s mins", descripti
 description1 = "Joggen"
 certain_training_over_all_athletes = colums_for_all_workouts_specific_athlete[colums_for_all_workouts_specific_athlete$description == description1,]
 #check if the dataframe gives certain_training_over_all_athletes
-print(certain_training_over_all_athletes)
+#print(certain_training_over_all_athletes)
 
 training_times_certain_training = select(certain_training_over_all_athletes, date, start, end)
 
@@ -129,7 +129,7 @@ print(sprintf("The standard deviation of the training duration of %s over all at
 description2 = "Joggen"
 specific_training_over_all_athletes = colums_for_all_workouts_specific_athlete[colums_for_all_workouts_specific_athlete$description == description2,]
 #check if the dataframe gives specific_training_over_all_athletes
-print(specific_training_over_all_athletes)
+#print(specific_training_over_all_athletes)
 
 training_times_specific_training = select(specific_training_over_all_athletes, date, start, end)
 
@@ -157,7 +157,7 @@ ggplot(data = final_list_specific_training, aes(y=duration)) +
 
 #print(full_dataset)
 training_times_full_dataset = select(full_dataset, first_name, last_name, date, start, end)
-print(training_times_full_dataset)
+#print(training_times_full_dataset)
 
 
 list_training_duration <- matrix()
@@ -171,69 +171,13 @@ for (a in 1:nrow(training_times_full_dataset)) {       # for-loop over rows
 column_list_full_training = data.frame(list_training_duration)
 final_list_full_training =cbind(training_times_full_dataset,column_list_full_training)
 
-print(final_list_full_training)
+names(final_list_full_training)[names(final_list_full_training) =="list_training_duration"] <- "duration"
+#print(final_list_full_training)
 
-##########################################################################################
-#final_list_full_training$new <- rowMeans(final_list_full_training[ , c(1,2)], na.rm=TRUE)
-#sum_training_duration = 0
-#counter=0
-
-
-#for(i in 1:nrow(training_times_full_dataset)) {       # for-loop over rows
-#  start_time_full_training = paste(toString(training_times_full_dataset$date[i]), toString(training_times_full_dataset$start[i]))
-#  end_time_full_training = paste(toString(training_times_full_dataset$date[i]), toString(training_times_full_dataset$end[i]))
-#  sum_full_training_duration = sum_training_duration + get_duration_of_training(start_time = start_time_full_training, end_time = end_time_full_training)
-#  counter_full=i
-#}
-
-# Dataframe mit 0 Zeilen und 3 Spalten erstellen
-df <- data.frame(matrix(ncol = 2, nrow = 0))
-# Spaltennamen bereitstellen
-colnames(df) <- c('vorname', 'average training duration')
-
-all_names = list(unique(final_list_full_training[c("first_name")]))
-for(name in all_names) {       # for-loop over rows
-  var1<-name
-  #print(var1)
-  
-  for(j in 1:nrow(final_list_full_training)) {       # for-loop over rows
-    #print(final_list_full_training$first_name[j])
-    if(final_list_full_training$first_name[j] == var1){
-      print(var1)
-      print("xeaz")
-    }
-    #if(final_list_full_training$first_name[j] == var1){
-    #start_time_full_training = paste(toString(final_list_full_training$date[j]), toString(final_list_full_training$start[j]))
-    #end_time_full_training = paste(toString(final_list_full_training$date[j]), toString(final_list_full_training$end[j]))
-    #sum_full_training_duration = sum_training_duration + get_duration_of_training(start_time = start_time_full_training, end_time = end_time_full_training)
-    #counter_full=j
-    #}
-  }
-}
-
-print(final_list_full_training)
-
-
-#Funktion um den Zeitunterschied zwischen zwei Zeiten zu berechnen
-#get_duration_of_training <- function(start_time, end_time) {
-#  return(difftime(end_time, start_time, units = "mins"))
-#}
-#print(sum_training_duration)
-#average_training_duration= sum_training_duration/counter_full
-
-#print the sentence 
-#print(paste0("The average training duration of the athlet over all trainings is: ",toString(average_training_duration)))
-#print(sprintf("The average training duration of %s over all trainings is: %s min",name, toString(average_training_duration)))
+average_of_the_training_duration_over_all_athletes = aggregate(final_list_full_training$duration, list(final_list_full_training$first_name), FUN=mean)
+print(average_of_the_training_duration_over_all_athletes)
 
 
 
 
-
-
-
-
-
-#get_duration_of_training <- function(start_time, end_time) {
-#  print(difftime(start_time, end_time, units = "mins"))
-#}
 #dbDisconnect()
