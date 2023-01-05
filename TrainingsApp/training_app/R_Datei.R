@@ -27,19 +27,20 @@ full_dataset = (right_join(athletes_athletes, workout_and_workout_data, by = c("
 #ALL WORKOUTS OF A SPECIFIC ATHLET
 
 name = "Daniel"
-colums_for_all_workouts_specific_athlete = select(full_dataset, first_name, last_name, description, start, end, date)
-all_workouts_specific_athlete = colums_for_all_workouts_specific_athlete[colums_for_all_workouts_specific_athlete$first_name == name,]
+colums_for_all_workouts_specific_athlete = select(full_dataset, first_name, last_name, description, start, end, date) #choose columns from the dataframe
+all_workouts_specific_athlete = colums_for_all_workouts_specific_athlete[colums_for_all_workouts_specific_athlete$first_name == name,] #make connection between first_name == name 
 #check if the dataframe gives all_workouts_specific_athlete
 #print(all_workouts_specific_athlete)
 
 #AVERAGE OVER TRAINING DURATION OF A CERTAIN ATHLETE OVER ALL TRAININGS 
 
-training_times = select(all_workouts_specific_athlete, date, start, end)
+training_times = select(all_workouts_specific_athlete, date, start, end) # select all columns that are necessery
 #print((select(all_workouts_specific_athlete, date, start, end)))
 
-sum_training_duration = 0
-counter=0
+sum_training_duration = 0 #set sum_training_duration to 0
+counter=0 #set counter to 0
 
+#bring the data in the right format for the function
 for(i in 1:nrow(training_times)) {       # for-loop over rows
   start_time_training = paste(toString(training_times$date[i]), toString(training_times$start[i]))
   end_time_training = paste(toString(training_times$date[i]), toString(training_times$end[i]))
@@ -153,6 +154,7 @@ print(final_list_specific_training)
 ggplot(data = final_list_specific_training, aes(y=duration)) +
   geom_bar()
 
+
 #AVERAGE OF THE TRAINING DURATION OVER ALL ATHLETES (I.E. PER ATHLETE AVERAGE OF THE TRAINING DURATION OVER ALL TRAININGS)
 
 #print(full_dataset)
@@ -175,9 +177,24 @@ names(final_list_full_training)[names(final_list_full_training) =="list_training
 #print(final_list_full_training)
 
 average_of_the_training_duration_over_all_athletes = aggregate(final_list_full_training$duration, list(final_list_full_training$first_name), FUN=mean)
+names(average_of_the_training_duration_over_all_athletes)[names(average_of_the_training_duration_over_all_athletes) =="Group.1"] <- "names"
+names(average_of_the_training_duration_over_all_athletes)[names(average_of_the_training_duration_over_all_athletes) =="x"] <- "average_duration"
 print(average_of_the_training_duration_over_all_athletes)
 
+#####plot
+barplot(average_of_the_training_duration_over_all_athletes$average_duration, 
+        names.arg = average_of_the_training_duration_over_all_athletes$names,
+        col = "#69b3a2",
+        main = "Average of the training duration over all athletes",
+        xlab = "Athletes",
+        ylab = "Average Training Duration",)
+
+ggplot(average_of_the_training_duration_over_all_athletes, aes(x = names, y= average_duration)) + 
+      geom_bar(stat = "identity") +
+      ggtitle("Average of the training duration over all athletes") +
+      xlab("Athletes") +
+      ylab("Average Training Duration") 
+      
+        
 
 
-
-#dbDisconnect()
