@@ -226,14 +226,14 @@ server <- function(input, output) {
   
   
   ######## PLOTS########
-  
+  sqlOutputpiechar<- reactive({
   complete_athletes_workout_data= full_dataset %>% mutate(dauer = difftime(paste(athletes_workout_data$date, athletes_workout_data$end),(paste(athletes_workout_data$date, athletes_workout_data$start)), units = "mins"))
   subset_pie_char_specific_Workout = complete_athletes_workout_data[complete_athletes_workout_data$description == input$select_workout_overview,]
   
   mean_data=subset_pie_char %>% group_by(id) %>% summarise(mean = mean(dauer))
   all_pie_char_data = left_join(mean_data,athleten_dictonary, by = c("id"="id"))
   all_pie_char_data %>% select(group, mean)
-  
+  })
   
  #############Input Dropdown Athleten ####################
     #Holt reaktive alle Athleten Daten
