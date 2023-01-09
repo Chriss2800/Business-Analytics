@@ -77,8 +77,14 @@ ui <- dashboardPage(
               h2("Hello Athlete"),
               fluidRow(
                 valueBoxOutput("ui_outputVBoxDurchschnittAthlete",width = 3),
-                valueBoxOutput("ui_outputVBoxDurchschnittAthleteWorkout", width = 3),
-                )
+                valueBoxOutput("ui_outputVBoxDurchschnittAthleteWorkout", width = 3)
+                
+                ),
+              fluidRow(box(
+                title = "Histogram", background = "teal", solidHeader = TRUE,
+                collapsible = TRUE,
+                
+              ))
             ),
       tabItem(tabName = "overview",
               h2("Hello Overalluser"),
@@ -99,6 +105,7 @@ library(dplyr)
 library(dbplyr)
 library(RSQLite)
 library(ggplot2)
+library(tidyverse)
 server <- function(input, output) {
  
   conn <- DBI::dbConnect(RSQLite::SQLite(), "db.sqlite3") #Definition der COnnection von der SQLitedatei "db.sqlite3" mit der Variable "verbindung
@@ -106,10 +113,14 @@ server <- function(input, output) {
   get_duration_of_training <- function(start_time, end_time) {
     return(difftime(end_time, start_time, units = "mins"))
   }
+  athletes_athletes = dbGetQuery(conn, "SELECT * FROM athletes_athletes")
   athletes_workout = dbGetQuery(conn, "SELECT * FROM athletes_workout")
   athletes_workout_data = dbGetQuery(conn, "SELECT * FROM athletes_workout_data")
   athleten_dictonary <- dbGetQuery(conn, "SELECT DISTINCT id, first_name, last_name FROM athletes_athletes")
+  athleten_dictonary <- athleten_dictonary %>% unite("group",id,first_name,last_name, sep = " " , remove = FALSE)
   workout_dictionary <- dbGetQuery(conn, "SELECT DISTINCT id, description FROM athletes_workout")
+  full_dataset = (right_join(athletes_workout, athletes_workout_data, by = c("id" ="workout_id")))
+  full_dataset = (right_join(athletes_athletes, full_dataset, by = c("id" ="athlete_id")))
   sum_training_duration = 0
   ########Average Time per Athlete######
   sqlAthleteAll <- reactive({
@@ -212,6 +223,18 @@ server <- function(input, output) {
         sdworkouttime = sd(unlist(list_certain_workout))
         if(is.na(sdworkouttime)){sdworkouttime="--"} else {sdworkouttime}
       }})
+  
+  
+  ######## PLOTS########
+  
+  complete_athletes_workout_data= full_dataset %>% mutate(dauer = difftime(paste(athletes_workout_data$date, athletes_workout_data$end),(paste(athletes_workout_data$date, athletes_workout_data$start)), units = "mins"))
+  subset_pie_char_specific_Workout = complete_athletes_workout_data[complete_athletes_workout_data$description == input$select_workout_overview,]
+  
+  mean_data=subset_pie_char %>% group_by(id) %>% summarise(mean = mean(dauer))
+  all_pie_char_data = left_join(mean_data,athleten_dictonary, by = c("id"="id"))
+  all_pie_char_data %>% select(group, mean)
+  
+  
  #############Input Dropdown Athleten ####################
     #Holt reaktive alle Athleten Daten
   sqlOutputPerson<- reactive({
