@@ -80,11 +80,7 @@ ui <- dashboardPage(
                 valueBoxOutput("ui_outputVBoxDurchschnittAthleteWorkout", width = 3)
                 
                 ),
-              fluidRow(box(
-                title = "Histogram", background = "teal", solidHeader = TRUE,
-                collapsible = TRUE,
-                
-              ))
+              
             ),
       tabItem(tabName = "overview",
               h2("Hello Overalluser"),
@@ -92,7 +88,13 @@ ui <- dashboardPage(
                 valueBoxOutput("ui_outputVBoxDurchschnittOneWorkout", width = 3),
                 valueBoxOutput("ui_outputVBoxMedianOneWorkout", width = 3),
                 valueBoxOutput("ui_outputVBoxSDOneWorkout", width = 3)
-              )
+              ),
+              fluidRow(box(
+                title = "Histogram", background = "teal", solidHeader = TRUE,
+                collapsible = TRUE,
+                plotOutput("ui_outputBoxPieChart")
+                
+              ))
       )
       
           )
@@ -121,7 +123,9 @@ server <- function(input, output) {
   workout_dictionary <- dbGetQuery(conn, "SELECT DISTINCT id, description FROM athletes_workout")
   full_dataset = (right_join(athletes_workout, athletes_workout_data, by = c("id" ="workout_id")))
   full_dataset = (right_join(athletes_athletes, full_dataset, by = c("id" ="athlete_id")))
-  sum_training_duration = 0
+  full_dataset = full_dataset %>% unite("group",id,first_name,last_name, sep = " " , remove = FALSE)
+  full_dataset= full_dataset %>% mutate(dauer = difftime(paste(full_dataset$date, full_dataset$end),(paste(full_dataset$date, full_dataset$start)), units = "mins")) 
+   sum_training_duration = 0
   ########Average Time per Athlete######
   sqlAthleteAll <- reactive({
     if(input$select_athlete == "") {average_training_duration="--"} else{
@@ -227,12 +231,12 @@ server <- function(input, output) {
   
   ######## PLOTS########
   sqlOutputpiechar<- reactive({
-  complete_athletes_workout_data= full_dataset %>% mutate(dauer = difftime(paste(athletes_workout_data$date, athletes_workout_data$end),(paste(athletes_workout_data$date, athletes_workout_data$start)), units = "mins"))
-  subset_pie_char_specific_Workout = complete_athletes_workout_data[complete_athletes_workout_data$description == input$select_workout_overview,]
+  #subset_pie_char_specific_Workout = full_dataset[full_dataset$description == input$select_workout_overview,]
+  subset_pie_char_specific_Workout = full_dataset %>% filter(description == input$select_workout_overview,)
+  mean_data=as.data.frame(subset_pie_char_specific_Workout %>% group_by(group) %>% summarise(mean = mean(dauer)))
+
   
-  mean_data=subset_pie_char %>% group_by(id) %>% summarise(mean = mean(dauer))
-  all_pie_char_data = left_join(mean_data,athleten_dictonary, by = c("id"="id"))
-  all_pie_char_data %>% select(group, mean)
+
   })
   
  #############Input Dropdown Athleten ####################
@@ -302,6 +306,14 @@ server <- function(input, output) {
     valueBox(
       paste(sqlWorkoutTimeStandardDeviaton(),"min"), tags$p("Standard Deviation of a specific Workout of all Athletes", style = "font-size: 150%;"), icon = icon("clock"), color = "green", width = 4,
       href = NULL)
+  })
+  
+  output$ui_outputBoxPieChart <- renderPlot({
+    
+    # Barplot
+    ggplot(sqlOutputpiechar(), aes(x=subset_pie_char_specific_Workout$group, y=mean, fill = x)) + 
+      geom_bar(stat = "identity")
+    
   })
   
 
