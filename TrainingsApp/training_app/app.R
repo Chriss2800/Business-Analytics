@@ -90,16 +90,21 @@ ui <- dashboardPage(
                 valueBoxOutput("ui_outputVBoxSDOneWorkout", width = 3)
               ),
               fluidRow(box(
-                title = "Histogram", background = "teal", solidHeader = TRUE,
+                title = "Distribution of all performed trainings", background = "teal", solidHeader = TRUE,
                 collapsible = TRUE,
                 plotOutput("ui_OutputTreeMap")
                 ),
                       box(
-                        title = "tatsächlich ein Histogramm", background = "teal", solidHeader = TRUE,
+                        title = "Histogramm of all done specific workout", background = "teal", solidHeader = TRUE,
                         collapsible = TRUE,
                         plotOutput("ui_OutputScatterPlot")
                       )
-              )
+              ),
+              fluidRow(box(
+                title= "Average trainingduration of all athletes and each athlete specific", background= "teal", solidHeader = TRUE,
+                collapsible = TRUE,
+                plotOutput("ui_OutputGroupedBar")
+              ))
       )
       
           )
@@ -128,7 +133,7 @@ server <- function(input, output) {
   workout_dictionary <- dbGetQuery(conn, "SELECT DISTINCT id, description FROM athletes_workout")
   full_dataset = (right_join(athletes_workout, athletes_workout_data, by = c("id" ="workout_id")))
   full_dataset = (right_join(athletes_athletes, full_dataset, by = c("id" ="athlete_id")))
-  full_dataset = full_dataset %>% unite("group",id,first_name,last_name, sep = " " , remove = FALSE)
+  full_dataset = full_dataset %>% unite("group",id,first_name,last_name, sep = "_" , remove = FALSE)
   full_dataset= full_dataset %>% mutate(dauer = difftime(paste(full_dataset$date, full_dataset$end),(paste(full_dataset$date, full_dataset$start)), units = "mins")) 
    sum_training_duration = 0
   ########Average Time per Athlete######
@@ -255,8 +260,12 @@ server <- function(input, output) {
      workout_data <- full_dataset %>% group_by(group) %>% summarise(anzahl= n())
         })
    sqlOutputTreeMapWorkout<- reactive({
-     workout_data <- full_dataset %>% group_by(group) %>% summarise(anzahl= n())
-     workout_data_2<- full_dataset
+     workout_data <- full_dataset %>% group_by(description, group) %>% summarise(anzahl= n())
+    
+   })
+   sqlOutputBar <- reactive({
+     workout_data <- full_dataset %>% group_by(description, group) %>% summarise(durchschnitt = mean(dauer))
+     workout_data_2 <- full_dataset %>% group_by(description) %>% summarise(durchschnitt = mean(dauer)) %>% add_column(.after="description",group = "Alle") %>% bind_rows(workout_data)
    })
   
  #############Input Dropdown Athleten ####################
@@ -345,7 +354,7 @@ server <- function(input, output) {
 
     
     # A basic scatterplot with color depending on Species
-    ggplot(sqlOutputScatterPlot(), aes(x=date, y=dauer, color= group, )) + 
+    ggplot(sqlOutputScatterPlot(), aes(x=date, y=dauer, color= group )) + 
       geom_point(size=6) +
       ylim(0, NA) +
       theme_ipsum()
@@ -356,14 +365,31 @@ server <- function(input, output) {
     # library
     library(treemap)
     
+    
    
     
     # treemap
-    treemap(sqlOutputTreeMap(),
-            index="group",
+    treemap(sqlOutputTreeMapWorkout(),
+            index=c("description", "group"),
             vSize="anzahl",
-            type="index"
-    )
+            type="index",
+            palette = "Set1", # RColorBrewer::display.brewer.all() für Farbpalettenwahl
+            title = "",
+            fontcolor.labels=c("black","white"),
+            fontsize.labels=c(15,12),
+            fontface.labels=c(4,3),                  # Font of labels: 1,2,3,4 for normal, bold, italic, bold-italic...
+            bg.labels = 0,
+            align.labels=list(
+              c("center", "center"), 
+              c("right", "bottom")
+            ),
+            border.col = "white")
+         })
+  
+  output$ui_OutputGroupedBar <- renderPlot({
+    ggplot(sqlOutputBar(), aes(fill=description, y=durchschnitt, x=group, label=durchschnitt)) + 
+      geom_bar(position="dodge", stat="identity")+
+      geom_text(position=position_dodge(width = 0.9), size = 3)
   })
   
   
