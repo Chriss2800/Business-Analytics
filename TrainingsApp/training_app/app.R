@@ -92,9 +92,14 @@ ui <- dashboardPage(
               fluidRow(box(
                 title = "Histogram", background = "teal", solidHeader = TRUE,
                 collapsible = TRUE,
-                plotOutput("ui_outputBoxPieChart")
-                
-              ))
+                plotOutput("ui_OutputTreeMap")
+                ),
+                      box(
+                        title = "tatsächlich ein Histogramm", background = "teal", solidHeader = TRUE,
+                        collapsible = TRUE,
+                        plotOutput("ui_OutputScatterPlot")
+                      )
+              )
       )
       
           )
@@ -232,12 +237,27 @@ server <- function(input, output) {
   ######## PLOTS########
   sqlOutputpiechar<- reactive({
   #subset_pie_char_specific_Workout = full_dataset[full_dataset$description == input$select_workout_overview,]
-  subset_pie_char_specific_Workout = full_dataset %>% filter(description == input$select_workout_overview,)
-  mean_data=as.data.frame(subset_pie_char_specific_Workout %>% group_by(group) %>% summarise(mean = mean(dauer)))
-
-  
-
-  })
+  subset_pie_char_specific_Workout <- full_dataset %>% filter(description == input$select_workout_overview,)
+  mean_data <- subset_pie_char_specific_Workout %>% group_by(group) %>% summarise(mean = mean(dauer))
+  mean_data$mean <- as.integer(mean_data$mean)
+  data.frame(mean_data)
+    })
+   
+   sqlOutputScatterPlot<- reactive({
+     
+     workout_data <- full_dataset %>% group_by(group,description, dauer, date)
+     workout_data <- full_dataset %>% filter(description == input$select_workout_overview,)
+     data.frame(workout_data)   
+   })
+   
+   
+   sqlOutputTreeMapAthlete<- reactive({
+     workout_data <- full_dataset %>% group_by(group) %>% summarise(anzahl= n())
+        })
+   sqlOutputTreeMapWorkout<- reactive({
+     workout_data <- full_dataset %>% group_by(group) %>% summarise(anzahl= n())
+     workout_data_2<- full_dataset
+   })
   
  #############Input Dropdown Athleten ####################
     #Holt reaktive alle Athleten Daten
@@ -307,17 +327,44 @@ server <- function(input, output) {
       paste(sqlWorkoutTimeStandardDeviaton(),"min"), tags$p("Standard Deviation of a specific Workout of all Athletes", style = "font-size: 150%;"), icon = icon("clock"), color = "green", width = 4,
       href = NULL)
   })
-  
+############## Plots Overview###############  
   output$ui_outputBoxPieChart <- renderPlot({
     
     # Barplot
-    ggplot(sqlOutputpiechar(), aes(x=subset_pie_char_specific_Workout$group, y=mean, fill = x)) + 
-      geom_bar(stat = "identity")
+    #ggplot(sqlOutputpiechar(), aes(x=group, y=mean, fill = x)) + 
+     # geom_bar(stat = "identity")
+    ggplot(sqlOutputpiechar(), aes(x="", y=mean, fill=group)) +
+      geom_bar(stat="identity", width=1) +
+      coord_polar("y", start=0)
     
   })
   
+  output$ui_OutputScatterPlot <- renderPlot({
 
+    library(hrbrthemes)
+
+    
+    # A basic scatterplot with color depending on Species
+    ggplot(sqlOutputScatterPlot(), aes(x=date, y=dauer, color= group, )) + 
+      geom_point(size=6) +
+      ylim(0, NA) +
+      theme_ipsum()
+  })
   
+
+  output$ui_OutputTreeMap <- renderPlot({
+    # library
+    library(treemap)
+    
+   
+    
+    # treemap
+    treemap(sqlOutputTreeMap(),
+            index="group",
+            vSize="anzahl",
+            type="index"
+    )
+  })
   
   
 }
