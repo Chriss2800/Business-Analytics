@@ -1,6 +1,7 @@
 ## app.R ##
 
 library(shinydashboard)
+library(hms)
 #########################################
 ui <- dashboardPage(
   dashboardHeader(title = "Sporta",
@@ -44,31 +45,24 @@ ui <- dashboardPage(
                             uiOutput("ui_outputPerson"),
                             uiOutput("ui_outputWorkout_1"),
                             
-                            dateInput(
-                              "date",
-                              "Workout Date",
-                              format = "dd-mm-yyyy",
-                              startview = "month",
-                              weekstart = 1,
-                              language = "en",
-                              ),
-                            
                             ## reset side bar selection
-                            actionButton('reset',
+                            actionButton('reset_athlete',
                                          'Reset',
                                          icon = icon('refresh'),
                                          width = 200),
-                            # submit side bar selection
-                            actionButton('submit',
-                                         'Submit',
-                                         icon = icon('refresh'),
-                                         width = 200)
+                           
                             
            )),
       menuItem("Overview", tabName = "overview", icon = icon("chart-pie")),
       div( 
         conditionalPanel("input.sidebar === 'overview'",
-                         uiOutput("ui_outputWorkout_2")))  
+                         uiOutput("ui_outputWorkout_2"),
+                         
+                         ## reset side bar selection
+                         actionButton('reset_overview',
+                                      'Reset',
+                                      icon = icon('refresh'),
+                                      width = 200),))  
     )  
   ),
   dashboardBody(
@@ -77,7 +71,8 @@ ui <- dashboardPage(
               h2("Hello Athlete"),
               fluidRow(
                 valueBoxOutput("ui_outputVBoxDurchschnittAthlete",width = 3),
-                valueBoxOutput("ui_outputVBoxDurchschnittAthleteWorkout", width = 3)
+                valueBoxOutput("ui_outputVBoxDurchschnittAthleteWorkout", width = 3),
+                valueBoxOutput("ui_outputMostWorkoutAthlete", width = 3)
                 
                 ),
               
@@ -87,7 +82,8 @@ ui <- dashboardPage(
               fluidRow(
                 valueBoxOutput("ui_outputVBoxDurchschnittOneWorkout", width = 3),
                 valueBoxOutput("ui_outputVBoxMedianOneWorkout", width = 3),
-                valueBoxOutput("ui_outputVBoxSDOneWorkout", width = 3)
+                valueBoxOutput("ui_outputVBoxSDOneWorkout", width = 3),
+                valueBoxOutput("ui_outputMostWorkout", width = 3)
               ),
               fluidRow(box(
                 title = "Distribution of all performed trainings", background = "teal", solidHeader = TRUE,
@@ -101,7 +97,7 @@ ui <- dashboardPage(
                       )
               ),
               fluidRow(box(
-                title= "Average trainingduration of all athletes and each athlete specific", background= "teal", solidHeader = TRUE,
+                title= "Average training duration of all athletes and each athlete specific", background= "teal", solidHeader = TRUE, width = 12,
                 collapsible = TRUE,
                 plotOutput("ui_OutputGroupedBar")
               ))
@@ -135,109 +131,76 @@ server <- function(input, output) {
   full_dataset = (right_join(athletes_athletes, full_dataset, by = c("id" ="athlete_id")))
   full_dataset = full_dataset %>% unite("group",id,first_name,last_name, sep = "_" , remove = FALSE)
   full_dataset= full_dataset %>% mutate(dauer = difftime(paste(full_dataset$date, full_dataset$end),(paste(full_dataset$date, full_dataset$start)), units = "mins")) 
-   sum_training_duration = 0
-  ########Average Time per Athlete######
+##############################################Tab1##############################################
+#############Average Time per Athlete#############
   sqlAthleteAll <- reactive({
-    if(input$select_athlete == "") {average_training_duration="--"} else{
-      
-   
-  # get query to workoutdata tables
-    workout_data=athletes_workout_data[athletes_workout_data$athlete_id == input$select_athlete,]
-    training_times_athlete = select(workout_data, date, start, end)
-   
-    for(i in 1:nrow( training_times_athlete)) {       # for-loop over rows
-     start_time_training = paste(training_times_athlete$date[i], training_times_athlete$start[i])
-     end_time_training = paste(training_times_athlete$date[i], training_times_athlete$end[i])
-     sum_training_duration = sum_training_duration + difftime(end_time_training, start_time_training, units = "mins")
-     counter=i
-   }
-    average_training_duration <- toString(sum_training_duration/counter)
-  }})
-  
-  
+    if(input$select_athlete == "") {average_training_duration="__:__:__"} else{
+      workout_data <- full_dataset %>% filter(id == input$select_athlete) %>% summarise(mean(dauer))
+      workout_data <- as.numeric(workout_data)
+      average_training_duration <-  round_hms(hms(minutes = workout_data), secs=1)
+    }})
 ##############Average Time per Athlete and Training##############
-  
   sqlAthleteTraining <- reactive({ 
-    if(input$select_athlete == ""|| input$select_workout_athlete == "") {average_training_duration_athlete_workout="--"} 
+    if(input$select_athlete == ""|| input$select_workout_athlete == "") {average_training_duration_athlete_workout="__:__:__"} 
     else{
-          workout_and_workout_data = (right_join(athletes_workout, athletes_workout_data, by = c("id" ="workout_id")))
-    
-          specific_workout_data=workout_and_workout_data[workout_and_workout_data$athlete_id == input$select_athlete &
-                                                  workout_and_workout_data$description == input$select_workout_athlete,]
-    
-          training_times_athlete_workout = select(specific_workout_data, date, start, end)
-    
-    if(dim(specific_workout_data)[1] == 0) {average_training_duration_athlete_workout="--"} 
+      workout_data <- full_dataset %>% filter(description == input$select_workout_athlete & id == input$select_athlete)
+      
+    if(dim(workout_data)[1] == 0) {average_training_duration_athlete_workout="__:__:__"} 
           else{ 
-                for(i in 1:nrow(training_times_athlete_workout)) {       # for-loop over rows
-                    start_time_training = paste(training_times_athlete_workout$date[i], training_times_athlete_workout$start[i])
-                    end_time_training = paste(training_times_athlete_workout$date[i], training_times_athlete_workout$end[i])
-                    sum_training_duration = sum_training_duration + difftime(end_time_training, start_time_training, units = "mins")
-                    counter=i    }
-    average_training_duration_athlete_workout <- toString(sum_training_duration/counter)
+            workout_data <- workout_data %>%summarise(mean(dauer))
+            workout_data <- as.numeric(workout_data)
+            average_training_duration_athlete_workout <-  round_hms(hms(minutes = workout_data), secs=1)
     }}})
-  #############Average Training time Specific Workout ####################
+   
+##############Most used Workout##############
+   sqlMostWorkoutAthlete <- reactive ({
+     
+      workout_data <- full_dataset%>%filter(id == input$select_athlete) %>%summarise(max=max(description))
+      most_workout <- toString(workout_data)
+      if(most_workout=="NA"){most_workout <- "-"} else {most_workout
+        
+   }})
+   
+##############################################Tab2##############################################   
+#############Average Training time Specific Workout ####################
   sqlWorkoutTime <- reactive({
-    if(input$select_workout_overview == "") {average_training_duration_one_workout="--"} else{
-      workout_and_workout_data = (right_join(athletes_workout, athletes_workout_data, by = c("id" ="workout_id")))
-      certain_training_over_all_athletes = workout_and_workout_data[workout_and_workout_data$description == input$select_workout_overview,]
-      
-      training_times_certain_training = select(certain_training_over_all_athletes, date, start, end)
-      
-      if(dim(training_times_certain_training)[1] == 0) {average_training_duration_one_workout="--"} 
+    if(input$select_workout_overview == "") {average_training_duration_one_workout="__:__:__"} 
       else{
+      workout_data<- full_dataset %>% filter(description == input$select_workout_overview) %>% summarise(durchschnitt = mean(dauer))
       
-      for(i in 1:nrow(training_times_certain_training)) {       # for-loop over rows
-        start_time_certain_training = paste(training_times_certain_training$date[i], training_times_certain_training$start[i])
-        end_time_certain_training = paste(training_times_certain_training$date[i], training_times_certain_training$end[i])
-        sum_training_duration = sum_training_duration + get_duration_of_training(start_time = start_time_certain_training, end_time = end_time_certain_training)
-        counter_certain_training=i
-      }
-      
-        average_training_duration_one_workout= sum_training_duration/counter_certain_training
-      } 
-    }
-  })
-  #############Median Training time Specific Workout ####################
+        if(dim(workout_data)[1] == 0) {average_training_duration_one_workout="__:__:__"} 
+      else{
+      workout_data<- as.numeric(workout_data)
+      average_training_duration_one_workout= round_hms(hms(minutes = workout_data), secs=1)
+      }}})
+#############Median Training time Specific Workout#############
   sqlWorkoutTimeMedian <- reactive({
-    list_certain_workout <- list()
-    if(input$select_workout_overview == "") {medianworkouttime="--"} else {
+    if(input$select_workout_overview == "") {median_training_duration_one_workout="__:__:__"} 
+    else{
+      workout_data<- full_dataset %>% filter(description == input$select_workout_overview) %>% summarise(durchschnitt = median(dauer))
       
-      workout_and_workout_data = (right_join(athletes_workout, athletes_workout_data, by = c("id" ="workout_id")))
-      certain_training_over_all_athletes = workout_and_workout_data[workout_and_workout_data$description == input$select_workout_overview,]
-      
-      training_times_certain_training = select(certain_training_over_all_athletes, date, start, end)
-      
-        if(dim(training_times_certain_training)[1] == 0) {medianworkouttime="--"} else{
-          for (i in 1:nrow(training_times_certain_training)) {       # for-loop over rows
-            start_time_certain_training = paste(training_times_certain_training$date[i], training_times_certain_training$start[i])
-            end_time_certain_training = paste(training_times_certain_training$date[i], training_times_certain_training$end[i])
-            list_certain_workout [i] = get_duration_of_training(start_time = start_time_certain_training, end_time = end_time_certain_training)
-              }
-    medianworkouttime = median(unlist(list_certain_workout))
+      if(dim(workout_data)[1] == 0) {median_training_duration_one_workout="__:__:__"} 
+      else{
+        workout_data<- as.numeric(workout_data)
+        median_training_duration_one_workout= round_hms(hms(minutes = workout_data), secs=1)
   }}})
   
-  #############Standard Deviation Training time Specific Workout ####################
+#############Standard Deviation Training time Specific Workout#############
   sqlWorkoutTimeStandardDeviaton <- reactive({
     list_certain_workout <- list()
-    if(input$select_workout_overview == "") {sdworkouttime="--"} else {
-      
-      workout_and_workout_data = (right_join(athletes_workout, athletes_workout_data, by = c("id" ="workout_id")))
-      certain_training_over_all_athletes = workout_and_workout_data[workout_and_workout_data$description == input$select_workout_overview,]
-      
-      training_times_certain_training = select(certain_training_over_all_athletes, date, start, end)
-      
-      
-        for (i in 1:nrow(training_times_certain_training)) {       # for-loop over rows
-          start_time_certain_training = paste(training_times_certain_training$date[i], training_times_certain_training$start[i])
-          end_time_certain_training = paste(training_times_certain_training$date[i], training_times_certain_training$end[i])
-          list_certain_workout [i] = get_duration_of_training(start_time = start_time_certain_training, end_time = end_time_certain_training)
-        }
-      
-        sdworkouttime = sd(unlist(list_certain_workout))
-        if(is.na(sdworkouttime)){sdworkouttime="--"} else {sdworkouttime}
+    if(input$select_workout_overview == "") {sdworkouttime="__:__:__"} 
+    else{
+      workout_data<- full_dataset %>% filter(description == input$select_workout_overview) %>% summarise(durchschnitt = sd(dauer))
+      workout_data<- as.numeric(workout_data)
+      sdworkouttime= round_hms(hms(minutes = workout_data), secs=1)
+        if(is.na(sdworkouttime)){sdworkouttime="__:__:__"} else {sdworkouttime}
       }})
-  
+   
+##############Most used Workout##############
+   sqlMostWorkout <- reactive ({
+     workout_data <- full_dataset%>%summarise(max=max(description))
+     most_workout <- toString(workout_data)
+   }) 
   
   ######## PLOTS########
   sqlOutputpiechar<- reactive({
@@ -266,6 +229,8 @@ server <- function(input, output) {
    sqlOutputBar <- reactive({
      workout_data <- full_dataset %>% group_by(description, group) %>% summarise(durchschnitt = mean(dauer))
      workout_data_2 <- full_dataset %>% group_by(description) %>% summarise(durchschnitt = mean(dauer)) %>% add_column(.after="description",group = "Alle") %>% bind_rows(workout_data)
+     workout_data_2$durchschnitt <- round(workout_data_2$durchschnitt)
+     data.frame(workout_data_2)
    })
   
  #############Input Dropdown Athleten ####################
@@ -307,41 +272,45 @@ server <- function(input, output) {
   })
 
   output$ui_outputVBoxDurchschnittAthlete <- renderValueBox({
-    valueBox(
-     paste(sqlAthleteAll(),"min"), tags$p("Average Training Time", style = "font-size: 150%;"), icon = icon("clock"), color = "green", width = 4,
+    valueBox(sqlAthleteAll(), tags$p("Average training time",tags$br(), " of the athlete in general", style = "font-size: 150%;"), icon = icon("clock"), color = "green", width = 4,
              href = NULL)
   })
   output$ui_outputVBoxDurchschnittAthleteWorkout <- renderValueBox({
     valueBox(
-      paste(sqlAthleteTraining(),"min"), tags$p("Average Training Time of a specific Workout", style = "font-size: 150%;"), icon = icon("clock"), color = "green", width = 4,
+      sqlAthleteTraining(), tags$p("Average training time ",tags$br(), " of the athletes specific workout", style = "font-size: 150%;"), icon = icon("clock"), color = "green", width = 4,
       href = NULL)
+  })
+  output$ui_outputMostWorkoutAthlete <- renderValueBox({
+    valueBox(sqlMostWorkoutAthlete(), tags$p("Most done workout ",tags$br(), " of the athlete", style = "font-size: 150%;"), icon = icon("clock"), color = "green", width = 4,
+             href = NULL)
   })
   
   ########### Tab2
   output$ui_outputVBoxDurchschnittOneWorkout <- renderValueBox({
     valueBox(
-      paste(sqlWorkoutTime(),"min"), tags$p("Average Training Time of a specific Workout of all Athletes", style = "font-size: 150%;"), icon = icon("clock"), color = "green", width = 4,
+      sqlWorkoutTime(), tags$p("Average training time ",tags$br(), " of a specific workout of all athletes", style = "font-size: 150%;"), icon = icon("clock"), color = "green", width = 4,
       href = NULL)
   })
   
   output$ui_outputVBoxMedianOneWorkout <- renderValueBox({
     valueBox(
-      paste(sqlWorkoutTimeMedian(),"min"), tags$p("Median Time of a specific Workout of all Athletes", style = "font-size: 150%;"), icon = icon("clock"), color = "green", width = 4,
+      sqlWorkoutTimeMedian(), tags$p("Median training time",tags$br(), " of a specific workout of all athletes", style = "font-size: 150%;"), icon = icon("clock"), color = "green", width = 4,
       href = NULL)
   })
   
   
   output$ui_outputVBoxSDOneWorkout <- renderValueBox({
     valueBox(
-      paste(sqlWorkoutTimeStandardDeviaton(),"min"), tags$p("Standard Deviation of a specific Workout of all Athletes", style = "font-size: 150%;"), icon = icon("clock"), color = "green", width = 4,
+      sqlWorkoutTimeStandardDeviaton(), tags$p("Standard Deviation of",tags$br(), " a specific workout of all athletes", style = "font-size: 150%;"), icon = icon("clock"), color = "green", width = 4,
       href = NULL)
+  })
+  output$ui_outputMostWorkout <- renderValueBox({
+    valueBox(sqlMostWorkout(), tags$p("Most completed workout",tags$br(), " of all athletes", style = "font-size: 150%;"), icon = icon("clock"), color = "green", 
+             href = NULL)
   })
 ############## Plots Overview###############  
   output$ui_outputBoxPieChart <- renderPlot({
     
-    # Barplot
-    #ggplot(sqlOutputpiechar(), aes(x=group, y=mean, fill = x)) + 
-     # geom_bar(stat = "identity")
     ggplot(sqlOutputpiechar(), aes(x="", y=mean, fill=group)) +
       geom_bar(stat="identity", width=1) +
       coord_polar("y", start=0)
@@ -389,7 +358,7 @@ server <- function(input, output) {
   output$ui_OutputGroupedBar <- renderPlot({
     ggplot(sqlOutputBar(), aes(fill=description, y=durchschnitt, x=group, label=durchschnitt)) + 
       geom_bar(position="dodge", stat="identity")+
-      geom_text(position=position_dodge(width = 0.9), size = 3)
+      geom_text(position=position_dodge(width = 0.9), size = 5)
   })
   
   
