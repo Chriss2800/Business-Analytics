@@ -1,9 +1,21 @@
 ## app.R ##
-
+suppressPackageStartupMessages({
 library(shinydashboard)
 library(hms)
 library(scales)
+library(plyr)
+library(dplyr)
+library(dbplyr)
+library(RSQLite)
+library(ggplot2)
+library(tidyverse)
+library(fmsb)
+library(hrbrthemes)
+library(treemap)
+})
+defaultW <- getOption("warn") 
 
+options(warn = -1)
 #########################################
 ui <- dashboardPage(
   dashboardHeader(title = "Sporta",
@@ -142,6 +154,7 @@ library(treemap)
 
 
 server <- function(input, output) {
+  
  
   conn <- DBI::dbConnect(RSQLite::SQLite(), "db.sqlite3") #Definition der COnnection von der SQLitedatei "db.sqlite3" mit der Variable "verbindung
   
@@ -170,14 +183,15 @@ server <- function(input, output) {
   
 #############Average Time per Athlete#############
   sqlAthleteAll <- reactive({
-    if(input$select_athlete == "") {average_training_duration="__:__:__"} else{
+    if(input$select_athlete== "" ||length(input$select_athlete)==0) {average_training_duration="__:__:__"} 
+    else{
       workout_data <- full_dataset %>% filter(id == input$select_athlete) %>% summarise(mean(dauer))
       workout_data <- as.numeric(workout_data)
       average_training_duration <-  round_hms(hms(minutes = workout_data), secs=1)
     }})
 ##############Average Time per Athlete and Training##############
   sqlAthleteTraining <- reactive({ 
-    if(input$select_athlete == ""|| input$select_workout_athlete == "") {average_training_duration_athlete_workout="__:__:__"} 
+    if(input$select_athlete == ""|| input$select_workout_athlete == ""|| length(input$select_athlete)==0 || length(input$select_workout_athlete)==0) {average_training_duration_athlete_workout="__:__:__"} 
     else{
       workout_data <- full_dataset %>% filter(description == input$select_workout_athlete & id == input$select_athlete)
       
@@ -190,18 +204,20 @@ server <- function(input, output) {
    
 ##############Most used Workout##############
    sqlMostWorkoutAthlete <- reactive ({
-     
+     if(input$select_athlete== "" ||length(input$select_athlete)==0){most_workout <- "-"} 
+     else {
       workout_data <- full_dataset%>%filter(id == input$select_athlete) %>%summarise(max=max(description))
       most_workout <- toString(workout_data)
-      if(most_workout=="NA"){most_workout <- "-"} else {most_workout
+      
+
         
    }})
 
 ##############BMI##############
   sqlBMI <- reactive({
-    if(input$select_athlete == "") {average_training_duration_one_workout="-"} 
+    if(input$select_athlete == ""||length(input$select_athlete)==0) {average_training_duration_one_workout="-"} 
     else{
-    workout_data <- full_dataset %>% filter (id == input$select_athlete) %>% group_by(group, height, weight, gender) %>% summarise()
+    workout_data <- full_dataset %>% filter (id == input$select_athlete) %>% group_by(group, height, weight, gender) %>% summarise(.groups = "keep")
     height<- as.numeric(workout_data$height)/100
     weight<- as.numeric(workout_data$weight)
     bmi <- weight/(height^2)
@@ -250,26 +266,37 @@ server <- function(input, output) {
   
 ##############Spider Plot##############
   sqlSpiderPlot <- reactive ({
+    if(input$select_athlete == ""||length(input$select_athlete)==0) {workout_data <- data.frame()} 
+    else{
     workout_data <- full_dataset %>% filter(id == input$select_athlete) %>% group_by(description) %>% summarise(anzahl = n())
     max_zahl <- workout_data %>% summarise(maxi=max(anzahl))
     max_zahl <- round_any(as.numeric(max_zahl),10, f= ceiling)
     workout_data <- workout_data %>% add_column(.before = "anzahl", maxi=max_zahl,mini=0)
     workout_data <- data.frame(t(workout_data))
-    workout_data <- workout_data %>% set_names(as.character(slice(., 1))) %>% slice(-1)%>%type_convert()
-    
-  })  
+    suppressMessages(workout_data <- workout_data %>% set_names(as.character(slice(., 1))) %>% slice(-1)%>%type_convert())
+    }})  
   
 ##############Barplot Average und SD##############
   sqlBarPlot <- reactive({
+    if(input$select_athlete == ""||length(input$select_athlete)==0) 
+      {workout_data<-data.frame(matrix(ncol=3,nrow=0, dimnames=list(NULL, c("description", "durchschnitt", "sd"))))} 
+    else{
     workout_data <- full_dataset %>% filter(id == input$select_athlete) %>% group_by(description) %>% summarise(durchschnitt = mean(dauer), sd=sd(dauer))
+    workout_data$durchschnitt<-as.numeric(workout_data$durchschnitt)
     data.frame(workout_data)
-  })
+    
+  }})
 #############Histogram####################
   sqlHistogram <- reactive({
+    if(input$select_athlete == ""|| input$select_workout_athlete == ""|| length(input$select_athlete)==0 || length(input$select_workout_athlete)==0) 
+    {workout_data<-data.frame(matrix(ncol=2,nrow=0, dimnames=list(NULL, c("date", "dauer"))))} 
+    else{
     workout_data <- full_dataset %>% filter(id == input$select_athlete, description==input$select_workout_athlete)%>%select(date,dauer)
+    workout_data$dauer <- as.numeric(workout_data$dauer)
     workout_data$date <- as.Date(workout_data$date)
     data.frame(workout_data)
-    })
+    
+     }})
   
 ##############################################Tab2 Daten##############################################   
 #############Average Training time Specific Workout ####################
@@ -315,8 +342,8 @@ server <- function(input, output) {
 ##############Scatter Plot Histogramm##############
   sqlOutputScatterPlot<- reactive({
     
-    workout_data <- full_dataset %>% group_by(group,description, dauer, date)
-    workout_data <- full_dataset %>% filter(description == input$select_workout_overview)
+    workout_data <- full_dataset %>% select(group, description, dauer, date)%>% filter(description == input$select_workout_overview)
+    #workout_data$dauer <- as.numeric( workout_data$dauer)
     data.frame(workout_data)   
   })
 ##############Workout Distribution TreeMap##############
@@ -328,9 +355,10 @@ server <- function(input, output) {
   })
 ##############Average Training duration grouped Bar chart##############
   sqlOutputBar <- reactive({
-    workout_data <- full_dataset %>% group_by(description, group) %>% summarise(durchschnitt = mean(dauer))
+    workout_data <- full_dataset %>% group_by(description, group) %>% summarise(durchschnitt = mean(dauer),.groups = "keep")
     workout_data_2 <- full_dataset %>% group_by(description) %>% summarise(durchschnitt = mean(dauer)) %>% add_column(.after="description",group = "Alle") %>% bind_rows(workout_data)
     workout_data_2$durchschnitt <- round(workout_data_2$durchschnitt)
+    workout_data_2$durchschnitt <- as.numeric(workout_data_2$durchschnitt)
     data.frame(workout_data_2)
   })
 ##############################################Tab1 Sidebar##############################################
@@ -413,11 +441,12 @@ server <- function(input, output) {
 ##############Workout Distribution Spider Plot##############
   
    output$ui_outputSpiderPlot <- renderPlot({
-    radarchart(sqlSpiderPlot(), axistype = 2,
+  if(length(sqlSpiderPlot())>=3){
+      radarchart(sqlSpiderPlot(), axistype = 2,
                pcol=rgb(0.2,0.5,0.5,0.9) , pfcol=rgb(0.2,0.5,0.5,0.5) , plwd=4 ,
                cglcol="grey", cglty=1, axislabcol = "black", caxislabels=seq(0,20,5), cglwd=0.8,
                vlcex=0.9)
-    
+  }
   })
 ##############Average und SD BarPlot##############
   output$ui_outputBarPlot <- renderPlot({
@@ -434,6 +463,7 @@ server <- function(input, output) {
       geom_line( color="#69b3a2") +
       geom_point(shape=21, color="black", fill="#69b3a2", size=6) +
       theme_ipsum_es()+
+      ylim(0,NA)+
       xlab("")
   })
   
@@ -450,6 +480,7 @@ server <- function(input, output) {
   
 ##############Treemap Verteilung Athlete Workout##############
   output$ui_OutputTreeMap <- renderPlot({
+    suppressMessages(
     treemap(sqlOutputTreeMapWorkout(),
             index=c("description", "group"),
             vSize="anzahl",
@@ -465,7 +496,7 @@ server <- function(input, output) {
               c("right", "bottom")
             ),
             border.col = "white")
-  })
+  )})
 
 ##############Grouped BarPlot Average all Athlete##############
   output$ui_OutputGroupedBar <- renderPlot({
@@ -480,3 +511,4 @@ server <- function(input, output) {
 }
 #########################################
 shinyApp(ui, server)
+#########################################
