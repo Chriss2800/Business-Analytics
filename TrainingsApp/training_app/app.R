@@ -12,6 +12,7 @@ library(tidyverse)
 library(fmsb)
 library(hrbrthemes)
 library(treemap)
+library(shinyjs)
 })
 defaultW <- getOption("warn") 
 
@@ -155,37 +156,43 @@ library(treemap)
 
 server <- function(input, output) {
   
- 
+full_dataset<-reactive({ 
   conn <- DBI::dbConnect(RSQLite::SQLite(),  "db.sqlite3") #Definition der COnnection von der SQLitedatei "db.sqlite3" mit der Variable "verbindung
   
-  get_duration_of_training <- function(start_time, end_time) {
-    return(difftime(end_time, start_time, units = "mins"))
-  }
-  athletes_athletes = dbGetQuery(conn, "SELECT * FROM athletes_athletes")
-  athletes_workout = dbGetQuery(conn, "SELECT * FROM athletes_workout")
-  athletes_workout_data = dbGetQuery(conn, "SELECT * FROM athletes_workout_data")
-  athleten_dictonary <- dbGetQuery(conn, "SELECT DISTINCT id, first_name, last_name FROM athletes_athletes")
-  athleten_dictonary <- athleten_dictonary %>% unite("group",id,first_name,last_name, sep = " " , remove = FALSE)
-  workout_dictionary <- dbGetQuery(conn, "SELECT DISTINCT id, description FROM athletes_workout")
-  full_dataset = (right_join(athletes_workout, athletes_workout_data, by = c("id" ="workout_id")))
-  full_dataset = (right_join(athletes_athletes, full_dataset, by = c("id" ="athlete_id")))
-  full_dataset = full_dataset %>% unite("group",id,first_name,last_name, sep = "_" , remove = FALSE)
-  full_dataset= full_dataset %>% mutate(dauer = difftime(paste(full_dataset$date, full_dataset$end),(paste(full_dataset$date, full_dataset$start)), units = "mins")) 
+  athletes_athletes <- dbGetQuery(conn, "SELECT * FROM athletes_athletes")
+  athletes_workout <- dbGetQuery(conn, "SELECT * FROM athletes_workout")
+  athletes_workout_data <- dbGetQuery(conn, "SELECT * FROM athletes_workout_data")
+  full_dataset <- (right_join(athletes_workout, athletes_workout_data, by = c("id" ="workout_id")))
+  full_dataset <- (right_join(athletes_athletes, full_dataset, by = c("id" ="athlete_id")))
+  full_dataset <- full_dataset %>% unite("group",id,first_name,last_name, sep = "_" , remove = FALSE)
+  full_dataset <- full_dataset %>% mutate(dauer = difftime(paste(full_dataset$date, full_dataset$end),(paste(full_dataset$date, full_dataset$start)), units = "mins"))
+  dbDisconnect(conn)
+  data.frame(full_dataset)
+  
+})  
 ##############################################Tab1 Daten##############################################
 ##############Input Dropdown Athlete##############
   sqlOutputPerson<- reactive({
+    conn <- DBI::dbConnect(RSQLite::SQLite(),  "db.sqlite3") #Definition der COnnection von der SQLitedatei "db.sqlite3" mit der Variable "verbindung
     b<- c("",dbGetQuery(conn, "SELECT DISTINCT id FROM athletes_athletes"))      #Erster Wert soll leer sein daher wurde "nichts" in der Liste vor den Werten gesetzt
+    dbDisconnect(conn)
+    b<-b
+    
   }) 
 ##############Input Dropdown Workout##############
   sqlOutputWorkout<- reactive({
+    conn <- DBI::dbConnect(RSQLite::SQLite(),  "db.sqlite3") #Definition der COnnection von der SQLitedatei "db.sqlite3" mit der Variable "verbindung
     b<- c("",dbGetQuery(conn, "SELECT DISTINCT description FROM athletes_Workout"))
+    dbDisconnect(conn)
+    b<-b
+    
   })  
   
 #############Average Time per Athlete#############
   sqlAthleteAll <- reactive({
     if(input$select_athlete== "" ||length(input$select_athlete)==0) {average_training_duration="__:__:__"} 
     else{
-      workout_data <- full_dataset %>% filter(id == input$select_athlete) %>% summarise(mean(dauer))
+      workout_data <- full_dataset() %>% filter(id == input$select_athlete) %>% summarise(mean(dauer))
       workout_data <- as.numeric(workout_data)
       average_training_duration <-  round_hms(hms(minutes = workout_data), secs=1)
     }})
@@ -193,7 +200,7 @@ server <- function(input, output) {
   sqlAthleteTraining <- reactive({ 
     if(input$select_athlete == ""|| input$select_workout_athlete == ""|| length(input$select_athlete)==0 || length(input$select_workout_athlete)==0) {average_training_duration_athlete_workout="__:__:__"} 
     else{
-      workout_data <- full_dataset %>% filter(description == input$select_workout_athlete & id == input$select_athlete)
+      workout_data <- full_dataset() %>% filter(description == input$select_workout_athlete & id == input$select_athlete)
       
     if(dim(workout_data)[1] == 0) {average_training_duration_athlete_workout="__:__:__"} 
           else{ 
@@ -206,7 +213,7 @@ server <- function(input, output) {
    sqlMostWorkoutAthlete <- reactive ({
      if(input$select_athlete== "" ||length(input$select_athlete)==0){most_workout <- "-"} 
      else {
-      workout_data <- full_dataset%>%filter(id == input$select_athlete) %>%summarise(max=max(description))
+      workout_data <- full_dataset()%>%filter(id == input$select_athlete) %>%summarise(max=max(description))
       most_workout <- toString(workout_data)
       
 
@@ -217,7 +224,7 @@ server <- function(input, output) {
   sqlBMI <- reactive({
     if(input$select_athlete == ""||length(input$select_athlete)==0) {average_training_duration_one_workout="-"} 
     else{
-    workout_data <- full_dataset %>% filter (id == input$select_athlete) %>% group_by(group, height, weight, gender) %>% summarise(.groups = "keep")
+    workout_data <- full_dataset() %>% filter (id == input$select_athlete) %>% group_by(group, height, weight, gender) %>% summarise(.groups = "keep")
     height<- as.numeric(workout_data$height)/100
     weight<- as.numeric(workout_data$weight)
     bmi <- weight/(height^2)
@@ -268,7 +275,7 @@ server <- function(input, output) {
   sqlSpiderPlot <- reactive ({
     if(input$select_athlete == ""||length(input$select_athlete)==0) {workout_data <- data.frame()} 
     else{
-    workout_data <- full_dataset %>% filter(id == input$select_athlete) %>% group_by(description) %>% summarise(anzahl = n())
+    workout_data <- full_dataset() %>% filter(id == input$select_athlete) %>% group_by(description) %>% summarise(anzahl = n())
     max_zahl <- workout_data %>% summarise(maxi=max(anzahl))
     max_zahl <- round_any(as.numeric(max_zahl),10, f= ceiling)
     workout_data <- workout_data %>% add_column(.before = "anzahl", maxi=max_zahl,mini=0)
@@ -281,7 +288,7 @@ server <- function(input, output) {
     if(input$select_athlete == ""||length(input$select_athlete)==0) 
       {workout_data<-data.frame(matrix(ncol=3,nrow=0, dimnames=list(NULL, c("description", "durchschnitt", "sd"))))} 
     else{
-    workout_data <- full_dataset %>% filter(id == input$select_athlete) %>% group_by(description) %>% summarise(durchschnitt = mean(dauer), sd=sd(dauer))
+    workout_data <- full_dataset() %>% filter(id == input$select_athlete) %>% group_by(description) %>% summarise(durchschnitt = mean(dauer), sd=sd(dauer))
     workout_data$durchschnitt<-as.numeric(workout_data$durchschnitt)
     data.frame(workout_data)
     
@@ -291,7 +298,7 @@ server <- function(input, output) {
     if(input$select_athlete == ""|| input$select_workout_athlete == ""|| length(input$select_athlete)==0 || length(input$select_workout_athlete)==0) 
     {workout_data<-data.frame(matrix(ncol=2,nrow=0, dimnames=list(NULL, c("date", "dauer"))))} 
     else{
-    workout_data <- full_dataset %>% filter(id == input$select_athlete, description==input$select_workout_athlete)%>%select(date,dauer)
+    workout_data <- full_dataset() %>% filter(id == input$select_athlete, description==input$select_workout_athlete)%>%select(date,dauer)
     workout_data$dauer <- as.numeric(workout_data$dauer)
     workout_data$date <- as.Date(workout_data$date)
     data.frame(workout_data)
@@ -303,7 +310,7 @@ server <- function(input, output) {
   sqlWorkoutTime <- reactive({
     if(input$select_workout_overview == "") {average_training_duration_one_workout="__:__:__"} 
       else{
-      workout_data<- full_dataset %>% filter(description == input$select_workout_overview) %>% summarise(durchschnitt = mean(dauer))
+      workout_data<- full_dataset() %>% filter(description == input$select_workout_overview) %>% summarise(durchschnitt = mean(dauer))
       
         if(dim(workout_data)[1] == 0) {average_training_duration_one_workout="__:__:__"} 
       else{
@@ -314,7 +321,7 @@ server <- function(input, output) {
   sqlWorkoutTimeMedian <- reactive({
     if(input$select_workout_overview == "") {median_training_duration_one_workout="__:__:__"} 
     else{
-      workout_data<- full_dataset %>% filter(description == input$select_workout_overview) %>% summarise(durchschnitt = median(dauer))
+      workout_data<- full_dataset() %>% filter(description == input$select_workout_overview) %>% summarise(durchschnitt = median(dauer))
       
       if(dim(workout_data)[1] == 0) {median_training_duration_one_workout="__:__:__"} 
       else{
@@ -327,7 +334,7 @@ server <- function(input, output) {
     list_certain_workout <- list()
     if(input$select_workout_overview == "") {sdworkouttime="__:__:__"} 
     else{
-      workout_data<- full_dataset %>% filter(description == input$select_workout_overview) %>% summarise(durchschnitt = sd(dauer))
+      workout_data<- full_dataset() %>% filter(description == input$select_workout_overview) %>% summarise(durchschnitt = sd(dauer))
       workout_data<- as.numeric(workout_data)
       sdworkouttime= round_hms(hms(minutes = workout_data), secs=1)
         if(is.na(sdworkouttime)){sdworkouttime="__:__:__"} else {sdworkouttime}
@@ -335,28 +342,28 @@ server <- function(input, output) {
    
 ##############Most used Workout##############
    sqlMostWorkout <- reactive ({
-     workout_data <- full_dataset%>%summarise(max=max(description))
+     workout_data <- full_dataset()%>%summarise(max=max(description))
      most_workout <- toString(workout_data)
    }) 
   
 ##############Scatter Plot Histogramm##############
   sqlOutputScatterPlot<- reactive({
     
-    workout_data <- full_dataset %>% select(group, description, dauer, date)%>% filter(description == input$select_workout_overview)
+    workout_data <- full_dataset() %>% select(group, description, dauer, date)%>% filter(description == input$select_workout_overview)
     #workout_data$dauer <- as.numeric( workout_data$dauer)
     data.frame(workout_data)   
   })
 ##############Workout Distribution TreeMap##############
   sqlOutputTreeMapAthlete<- reactive({
-    workout_data <- full_dataset %>% group_by(group) %>% summarise(anzahl= n())
+    workout_data <- full_dataset() %>% group_by(group) %>% summarise(anzahl= n())
   })
   sqlOutputTreeMapWorkout<- reactive({
-    workout_data <- full_dataset %>% group_by(description, group) %>% summarise(anzahl= n())
+    workout_data <- full_dataset() %>% group_by(description, group) %>% summarise(anzahl= n())
   })
 ##############Average Training duration grouped Bar chart##############
   sqlOutputBar <- reactive({
-    workout_data <- full_dataset %>% group_by(description, group) %>% summarise(durchschnitt = mean(dauer),.groups = "keep")
-    workout_data_2 <- full_dataset %>% group_by(description) %>% summarise(durchschnitt = mean(dauer)) %>% add_column(.after="description",group = "Alle") %>% bind_rows(workout_data)
+    workout_data <- full_dataset() %>% group_by(description, group) %>% summarise(durchschnitt = mean(dauer),.groups = "keep")
+    workout_data_2 <- full_dataset() %>% group_by(description) %>% summarise(durchschnitt = mean(dauer)) %>% add_column(.after="description",group = "Alle") %>% bind_rows(workout_data)
     workout_data_2$durchschnitt <- round(workout_data_2$durchschnitt)
     workout_data_2$durchschnitt <- as.numeric(workout_data_2$durchschnitt)
     data.frame(workout_data_2)
@@ -380,6 +387,11 @@ server <- function(input, output) {
                    selected = NULL,
                    width = 225,
                    multiple = F)  
+  })
+  
+  
+  observeEvent(input$reset_athlete,{
+    reset("sidebar")
   })
 ##############################################Tab2 Sidebar##############################################
 ##############Dropdownmenu Workout Tab2##############   
