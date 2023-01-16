@@ -90,17 +90,17 @@ ui <- dashboardPage(
                 valueBoxOutput("ui_outputBMI", width = 3)
                 ),
               fluidRow(box(
-                title = "Distribution of athletes performed trainings", background = "navy", solidHeader = TRUE,
+                title = "Distribution of athletes performed trainings", background = "teal", solidHeader = TRUE,
                 collapsible = TRUE,
                 plotOutput("ui_outputSpiderPlot")
                 ),
                        box(
-                         title = "Average & SD", background = "navy", solidHeader = TRUE,
+                         title = "Average & SD", background = "teal", solidHeader = TRUE,
                          collapsible = TRUE,
                          plotOutput("ui_outputBarPlot")
                 ),
                       box(
-                        title = "Histogramm of the athletes workouts", background = "navy", solidHeader = TRUE, width = 12,
+                        title = "Histogramm of the athletes workouts", background = "teal", solidHeader = TRUE, width = 12,
                         collapsible = TRUE,
                         plotOutput("ui_outputHistogram")
                       )
@@ -119,18 +119,18 @@ ui <- dashboardPage(
                 valueBoxOutput("ui_outputMostWorkout", width = 3)
               ),
               fluidRow(box(
-                title = "Distribution of all performed trainings", background = "navy", solidHeader = TRUE,
+                title = "Distribution of all performed trainings", background = "teal", solidHeader = TRUE,
                 collapsible = TRUE,
                 plotOutput("ui_OutputTreeMap")
                 ),
                       box(
-                        title = "Histogramm of all done specific workout", background = "navy", solidHeader = TRUE,
+                        title = "Histogramm of all done specific workout", background = "teal", solidHeader = TRUE,
                         collapsible = TRUE,
                         plotOutput("ui_OutputScatterPlot")
                       )
               ),
               fluidRow(box(
-                title= "Average training duration of all athletes and each athlete specific", background= "navy", solidHeader = TRUE, width = 12,
+                title= "Average training duration of all athletes and each athlete specific", background= "teal", solidHeader = TRUE, width = 12,
                 collapsible = TRUE,
                 plotOutput("ui_OutputGroupedBar")
               ))
@@ -395,46 +395,46 @@ server <- function(input, output) {
 ##############################################Tab1 ValueBox##############################################
 ##############Athlete Average##############
   output$ui_outputVBoxDurchschnittAthlete <- renderValueBox({
-    valueBox(sqlAthleteAll(), tags$p("Average training time",tags$br(), " of the athlete in general", style = "font-size: 150%;"), icon = icon("clock"), color = "light-blue",
+    valueBox(sqlAthleteAll(), tags$p("Average training time",tags$br(), " of the athlete in general", style = "font-size: 150%;"), icon = icon("clock"), color = "green", width = 4,
              href = NULL)
   })   
 ##############Workout_Athlete Average##############
   output$ui_outputVBoxDurchschnittAthleteWorkout <- renderValueBox({
     valueBox(
-      sqlAthleteTraining(), tags$p("Average training time ",tags$br(), " of the athletes specific workout", style = "font-size: 150%;"), icon = icon("clock"), color = "light-blue",
+      sqlAthleteTraining(), tags$p("Average training time ",tags$br(), " of the athletes specific workout", style = "font-size: 150%;"), icon = icon("clock"), color = "green", width = 4,
       href = NULL)
   })
 ##############Most done Workout##############
   output$ui_outputMostWorkoutAthlete <- renderValueBox({
-    valueBox(sqlMostWorkoutAthlete(), tags$p("Most done workout ",tags$br(), " of the athlete", style = "font-size: 150%;"), icon = icon("ranking-star"), color = "light-blue",
+    valueBox(sqlMostWorkoutAthlete(), tags$p("Most done workout ",tags$br(), " of the athlete", style = "font-size: 150%;"), icon = icon("clock"), color = "green", width = 4,
              href = NULL)
   })
 ##############BMI##############
-  output$ui_outputBMI <- renderValueBox({ valueBox(sqlBMI(), tags$p("BMI",tags$br(), " of the athlete ", style = "font-size: 150%;"), icon = icon("weight-scale"), color = "light-blue",
+  output$ui_outputBMI <- renderValueBox({ valueBox(sqlBMI(), tags$p("BMI",tags$br(), " of the athlete ", style = "font-size: 150%;"), icon = icon("clock"), color = "green", width = 4,
                                                    href = NULL)})
 ##############################################Tab2 ValueBox##############################################   
 ##############Workout Average##############
   output$ui_outputVBoxDurchschnittOneWorkout <- renderValueBox({
     valueBox(
-      sqlWorkoutTime(), tags$p("Average training time ",tags$br(), " of a specific workout of all athletes", style = "font-size: 150%;"), icon = icon("clock"), color = "light-blue",
+      sqlWorkoutTime(), tags$p("Average training time ",tags$br(), " of a specific workout of all athletes", style = "font-size: 150%;"), icon = icon("clock"), color = "green", width = 4,
       href = NULL)
   })
 ##############Workout Median##############
   output$ui_outputVBoxMedianOneWorkout <- renderValueBox({
     valueBox(
-      sqlWorkoutTimeMedian(), tags$p("Median training time",tags$br(), " of a specific workout of all athletes", style = "font-size: 150%;"), icon = icon("clock"), color = "light-blue", 
+      sqlWorkoutTimeMedian(), tags$p("Median training time",tags$br(), " of a specific workout of all athletes", style = "font-size: 150%;"), icon = icon("clock"), color = "green", width = 4,
       href = NULL)
   })
   
 ##############Workout Standard Deviation##############
   output$ui_outputVBoxSDOneWorkout <- renderValueBox({
     valueBox(
-      sqlWorkoutTimeStandardDeviaton(), tags$p("Standard Deviation of",tags$br(), " a specific workout of all athletes", style = "font-size: 150%;"), icon = icon("calculator"), color = "light-blue",
+      sqlWorkoutTimeStandardDeviaton(), tags$p("Standard Deviation of",tags$br(), " a specific workout of all athletes", style = "font-size: 150%;"), icon = icon("clock"), color = "green", width = 4,
       href = NULL)
   }) 
 ##############Most Workout##############
   output$ui_outputMostWorkout <- renderValueBox({
-    valueBox(sqlMostWorkout(), tags$p("Most completed workout",tags$br(), " of all athletes", style = "font-size: 150%;"), icon = icon("ranking-star"), color = "light-blue", 
+    valueBox(sqlMostWorkout(), tags$p("Most completed workout",tags$br(), " of all athletes", style = "font-size: 150%;"), icon = icon("clock"), color = "green", 
              href = NULL)
   })
 ##############################################Tab1 Plots##############################################
@@ -485,7 +485,7 @@ server <- function(input, output) {
             index=c("description", "group"),
             vSize="anzahl",
             type="index",
-            palette = "Dark2", # RColorBrewer::display.brewer.all() für Farbpalettenwahl
+            palette = "Set1", # RColorBrewer::display.brewer.all() für Farbpalettenwahl
             title = "",
             fontcolor.labels=c("black","white"),
             fontsize.labels=c(15,12),
@@ -503,7 +503,6 @@ server <- function(input, output) {
     ggplot(sqlOutputBar(), aes(fill=description, y=durchschnitt, x=group, label=durchschnitt)) + 
       geom_bar(position="dodge", stat="identity")+
       geom_text(position=position_dodge(width = 0.9), size = 5)
-      
   })
   
   
