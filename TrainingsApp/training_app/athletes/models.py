@@ -26,7 +26,7 @@ class Workout(models.Model):
     description = models.CharField(max_length=200)
     
     def __str__(self):
-        return self.description
+        return self.designation
 
 class Workout_data(models.Model):
     workout = models.ForeignKey(Workout, blank=True, null=True, on_delete=models.CASCADE)
@@ -38,7 +38,7 @@ class Workout_data(models.Model):
     date = models.DateField(max_length=30, default=timezone.now)
     
     def __str__(self):
-        return self.start
+        return self.workout.designation + " on " + str(self.date) + " for " + str(self.duration) + " minutes"
 
 
 

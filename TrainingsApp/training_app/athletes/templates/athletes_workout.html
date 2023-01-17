@@ -1,5 +1,17 @@
 {% extends 'main.html' %}
 {% block content %}
-    <h1>List of Workouts</h1>  
+    <h1>List of Workouts</h1> 
+    <hr>
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Athlete: {{ athlete }}</strong></div>
+        <div class="panel-body">
+            <ul class="list-group">
+            {% for workout in workouts %}
+                <li class="list-group-item">{{ workout }}</li>
+            {% endfor %} 
+          </ul>
+        </div>
+      </div>
+    
 {% endblock %}
     

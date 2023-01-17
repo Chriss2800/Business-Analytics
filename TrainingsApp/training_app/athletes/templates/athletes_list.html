@@ -12,7 +12,7 @@
         <li class="list-group-item">Gender: {{ athlete.gender }}</li>
         <li class="list-group-item">Height: {{ athlete.height }} cm</li>
         <li class="list-group-item">Weight: {{ athlete.weight }} kg</li>
-        <li class="list-group-item"><a href="{% url 'delete_athlete' athlete.id %}" class="btn btn-danger">Delete Athlete</a><p></p><a href="{% url 'update_athlete' athlete.id %}" class="btn btn-default">Update Athlete</a><p></p><a href="{% url 'athletes_workout' %}" class="btn btn-default">List all fisished workouts</a></li>
+        <li class="list-group-item"><a href="{% url 'delete_athlete' athlete.id %}" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this?')">Delete Athlete</a><p></p><a href="{% url 'update_athlete' athlete.id %}" class="btn btn-default">Update Athlete</a><p></p><a href="{% url 'athletes_workout' athlete.id %}" class="btn btn-info active">List all finished workouts</a></li>
       </ul>
     </div>
   </div>  

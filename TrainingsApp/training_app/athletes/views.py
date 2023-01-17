@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
+from django.contrib import messages
 from .models import Athletes
 from .models import Workout
 from .models import Workout_data
@@ -108,7 +109,10 @@ def update_workout_data(request, workout_data_id):
         return redirect('workout_data_list')
     return render(request, 'update_workout_data.html', {'workout_data': workout_data, 'form':form})
 
-def athletes_workout(request):
-    return render(request,'athletes_workout.html')
+def athletes_workout(request, athlete_id):
+    athlete = Athletes.objects.get(pk=athlete_id)
+    workouts = Workout_data.objects.filter(athlete_id=athlete_id)
+    return render(request,'athletes_workout.html', {'athlete': athlete, 'workouts':workouts})
+    
 
 

@@ -13,20 +13,17 @@ class AthletesForm(ModelForm):
 
         labels = {
             'gender': '',
-            'first_name': 'Enter your First Name below:',
-            'last_name': 'Enter your Last Name below',
+            'first_name': 'Enter your first name below:',
+            'last_name': 'Enter your last name below',
             'height': 'Enter your height in cm',
             'weight': 'Enter your weight in kg',
-            #'birth_date': forms.TextInput(attrs={'class':'form'}),
         }
        
         widgets = {
-            #'gender': forms.TextInput(attrs={'class':'form-control', 'placeholder':'Gender'}),
             'first_name': forms.TextInput(attrs={'class':'form-control', 'placeholder':'Jane'}),
             'last_name': forms.TextInput(attrs={'class':'form-control', 'placeholder':'Doe'}),
             'height': forms.TextInput(attrs={'class':'form-control', 'placeholder':'180'}),
             'weight': forms.TextInput(attrs={'class':'form-control', 'placeholder':'80'}),
-            #'birth_date': forms.TextInput(attrs={'class':'form'}),
         }
 
 class WorkoutForm(ModelForm):
@@ -35,8 +32,8 @@ class WorkoutForm(ModelForm):
         fields = '__all__'
 
         labels = {
-            'designation': 'Enter Your Workout Name',
-            'description': 'Enter Your Description',            
+            'designation': 'Enter your workout name',
+            'description': 'Enter your description',            
         }
         
         widgets = {
@@ -50,20 +47,14 @@ class WorkoutDataForm(ModelForm):
         fields = '__all__'
 
         labels = {
-            #'workout': forms.TextInput(attrs={'class':'form-select'}),
-            'pause': 'Enter your pause in minutes',
-            'start': 'Enter your Start Time',
-            'end': 'Enter your End Time',
-            #'duration': 'Enter your Duration in minutes',
-            #'date': forms.TextInput(attrs={'class':'form-control'}),
+            'date': 'Enter your date',
+            'start': 'Enter your start time',
+            'end': 'Enter your end time',
         }
        
         widgets = {
-            #'workout': forms.TextInput(attrs={'class':'form-select'}),
-            #'pause': forms.TextInput(attrs={'class':'form-control', 'placeholder':'5'}),
             'start': forms.TimeInput(format='hh:mm', attrs={'class':'form-control', 'placeholder':'HH:SS'}),
             'end': forms.TimeInput(format='hh:mm', attrs={'class':'form-control', 'placeholder':'HH:SS'}),
-            #'duration': forms.TextInput(attrs={'class':'form-control', 'placeholder':'120'}),
             'date': forms.DateInput(format=('%d/%m/%Y'), attrs={'class':'form-control', 'type':'date'}),
         }
 

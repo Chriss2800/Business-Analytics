@@ -6,13 +6,14 @@
   <br/>
   {% if submitted %}
       <h5>Your Workout was created successfully!!</h5>
-      <br/><br/>
-      <a href="{% url 'create_workout_data'%}" class="btn btn-primary btn-lg active" role="button">Enter another Data</a>
+      <br/>
+      <a href="{% url 'create_workout_data'%}" class="btn btn-info btn-lg active" role="button">Create Further Data</a>
   {% else %}
       <form action="" method=POST>
           {% csrf_token %}
           {{ form.as_p }}
-          <input type="submit" value="Create Workout Data" class="btn btn-primary btn-lg active">
+          <br/>
+          <input type="submit" value="Create Workout Data" class="btn btn-info btn-lg active">
       </form>
   {%endif%}
 {% endblock %}

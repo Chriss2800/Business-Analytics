@@ -2,21 +2,20 @@
 {% block content %}
   <h1>Create your Athlete</h1>
   <br/>
-  <p>Create your Athlete using the following Form. Enter the Data and Smash the Submit Button</p>
+  <p>Create your athlete using the following form. Enter the data and smash the button.</p>
   <hr>
-  <h3>Enter your Data</h3>
+  <h3>Enter your data</h3>
   <br/>
   {% if submitted %}
-      <h5>Your Athlete was created successfully!!</h5>
+      <h5>Your athlete was created successfully!!</h5>
       <br/>
-      <br/>
-      <a href="{% url 'create_athlete'%}" class="btn btn-primary btn-lg active" role="button">Create further Athletes</a>
+      <a href="{% url 'create_athlete'%}" class="btn btn-info btn-lg active" role="button">Create Further Athletes</a>
   {% else %}
       <form action="" method=POST>
           {% csrf_token %}
           {{ form.as_p }}
           </br>
-          <input type="submit" value="Create Your Athlete" class="btn btn-primary btn-lg active">
+          <input type="submit" value="Create Your Athlete" class="btn btn-info btn-lg active">
       </form>
   {%endif%}
 {% endblock %}
