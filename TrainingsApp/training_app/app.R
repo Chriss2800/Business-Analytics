@@ -19,6 +19,8 @@ defaultW <- getOption("warn")
 options(warn = -1)
 #########################################
 ui <- dashboardPage(
+
+##############Navigationbar##############
   dashboardHeader(title = "Sporta",
                   dropdownMenu(type = "notification",
                                badgeStatus = NULL,
@@ -51,14 +53,30 @@ ui <- dashboardPage(
                                                 href = "https://telegram.org")
                                )
                   ),
+##############################################Sidebar##############################################
   dashboardSidebar(
     sidebarMenu(
       id = "sidebar",
+
+##############Athlete Sidebar##############
       menuItem("Athlete", tabName = "athlete", icon = icon("person-running")),
-      div( 
+      div(
+        
            conditionalPanel("input.sidebar === 'athlete'",
                             uiOutput("ui_outputPerson"),
                             uiOutput("ui_outputWorkout_1"),
+                            column(12, align = "center",verbatimTextOutput("ui_outputName")),
+                            tags$head(
+                              tags$style(
+                                HTML(
+                                  "#Number_out {
+       font-family:  'Source Sans Pro','Helvetica Neue',Helvetica,Arial,sans-serif;
+       font-size: 14px;
+        }"
+                                )
+                              )
+                            ),
+                          
                             
                             ## reset side bar selection
                             actionButton('reset_athlete',
@@ -68,6 +86,7 @@ ui <- dashboardPage(
                            
                             
            )),
+##############Overview Sidebar##############
       menuItem("Overview", tabName = "overview", icon = icon("chart-pie")),
       div( 
         conditionalPanel("input.sidebar === 'overview'",
@@ -80,8 +99,10 @@ ui <- dashboardPage(
                                       width = 200)))  
     )  
   ),
+##############################################Mainfield##############################################
   dashboardBody(
     tabItems(
+##############Athlete Mainfield##############
       tabItem(tabName = "athlete",
               h2("Hello Athlete"),
               fluidRow(
@@ -111,6 +132,7 @@ ui <- dashboardPage(
               )
               
             ),
+##############Overview Mainfield##############
       tabItem(tabName = "overview",
               h2("Hello Overalluser"),
               fluidRow(
@@ -143,17 +165,6 @@ ui <- dashboardPage(
   )
 )
 #########################################
-library(plyr)
-library(dplyr)
-library(dbplyr)
-library(RSQLite)
-library(ggplot2)
-library(tidyverse)
-library(fmsb)
-library(hrbrthemes)
-library(treemap)
-
-
 server <- function(input, output) {
   
 full_dataset<-reactive({ 
@@ -182,11 +193,16 @@ full_dataset<-reactive({
 ##############Input Dropdown Workout##############
   sqlOutputWorkout<- reactive({
     conn <- DBI::dbConnect(RSQLite::SQLite(),  "db.sqlite3") #Definition der COnnection von der SQLitedatei "db.sqlite3" mit der Variable "verbindung
-    b<- c("",dbGetQuery(conn, "SELECT DISTINCT description FROM athletes_Workout"))
+    b<- c("",dbGetQuery(conn, "SELECT DISTINCT designation FROM athletes_Workout"))
     dbDisconnect(conn)
     b<-b
     
   })  
+  
+  sqlSidebarName<- reactive({
+    workout_data <- full_dataset() %>% filter(id== input$select_athlete) %>% select(first_name, last_name)%>% unite("name",first_name,last_name, sep = " " , remove = TRUE) %>% distinct(name)
+    workout_data<-as.character(workout_data)
+  })
   
 #############Average Time per Athlete#############
   sqlAthleteAll <- reactive({
@@ -200,7 +216,7 @@ full_dataset<-reactive({
   sqlAthleteTraining <- reactive({ 
     if(input$select_athlete == ""|| input$select_workout_athlete == ""|| length(input$select_athlete)==0 || length(input$select_workout_athlete)==0) {average_training_duration_athlete_workout="__:__:__"} 
     else{
-      workout_data <- full_dataset() %>% filter(description == input$select_workout_athlete & id == input$select_athlete)
+      workout_data <- full_dataset() %>% filter(designation == input$select_workout_athlete & id == input$select_athlete)
       
     if(dim(workout_data)[1] == 0) {average_training_duration_athlete_workout="__:__:__"} 
           else{ 
@@ -213,7 +229,7 @@ full_dataset<-reactive({
    sqlMostWorkoutAthlete <- reactive ({
      if(input$select_athlete== "" ||length(input$select_athlete)==0){most_workout <- "-"} 
      else {
-      workout_data <- full_dataset()%>%filter(id == input$select_athlete) %>%summarise(max=max(description))
+      workout_data <- full_dataset()%>%filter(id == input$select_athlete) %>%summarise(max=max(designation))
       most_workout <- toString(workout_data)
       
 
@@ -275,7 +291,7 @@ full_dataset<-reactive({
   sqlSpiderPlot <- reactive ({
     if(input$select_athlete == ""||length(input$select_athlete)==0) {workout_data <- data.frame()} 
     else{
-    workout_data <- full_dataset() %>% filter(id == input$select_athlete) %>% group_by(description) %>% summarise(anzahl = n())
+    workout_data <- full_dataset() %>% filter(id == input$select_athlete) %>% group_by(designation) %>% summarise(anzahl = n())
     max_zahl <- workout_data %>% summarise(maxi=max(anzahl))
     max_zahl <- round_any(as.numeric(max_zahl),10, f= ceiling)
     workout_data <- workout_data %>% add_column(.before = "anzahl", maxi=max_zahl,mini=0)
@@ -286,9 +302,9 @@ full_dataset<-reactive({
 ##############Barplot Average und SD##############
   sqlBarPlot <- reactive({
     if(input$select_athlete == ""||length(input$select_athlete)==0) 
-      {workout_data<-data.frame(matrix(ncol=3,nrow=0, dimnames=list(NULL, c("description", "durchschnitt", "sd"))))} 
+      {workout_data<-data.frame(matrix(ncol=3,nrow=0, dimnames=list(NULL, c("designation", "durchschnitt", "sd"))))} 
     else{
-    workout_data <- full_dataset() %>% filter(id == input$select_athlete) %>% group_by(description) %>% summarise(durchschnitt = mean(dauer), sd=sd(dauer))
+    workout_data <- full_dataset() %>% filter(id == input$select_athlete) %>% group_by(designation) %>% summarise(durchschnitt = mean(dauer), sd=sd(dauer))
     workout_data$durchschnitt<-as.numeric(workout_data$durchschnitt)
     data.frame(workout_data)
     
@@ -298,7 +314,7 @@ full_dataset<-reactive({
     if(input$select_athlete == ""|| input$select_workout_athlete == ""|| length(input$select_athlete)==0 || length(input$select_workout_athlete)==0) 
     {workout_data<-data.frame(matrix(ncol=2,nrow=0, dimnames=list(NULL, c("date", "dauer"))))} 
     else{
-    workout_data <- full_dataset() %>% filter(id == input$select_athlete, description==input$select_workout_athlete)%>%select(date,dauer)
+    workout_data <- full_dataset() %>% filter(id == input$select_athlete, designation==input$select_workout_athlete)%>%select(date,dauer)
     workout_data$dauer <- as.numeric(workout_data$dauer)
     workout_data$date <- as.Date(workout_data$date)
     data.frame(workout_data)
@@ -310,7 +326,7 @@ full_dataset<-reactive({
   sqlWorkoutTime <- reactive({
     if(input$select_workout_overview == "") {average_training_duration_one_workout="__:__:__"} 
       else{
-      workout_data<- full_dataset() %>% filter(description == input$select_workout_overview) %>% summarise(durchschnitt = mean(dauer))
+      workout_data<- full_dataset() %>% filter(designation == input$select_workout_overview) %>% summarise(durchschnitt = mean(dauer))
       
         if(dim(workout_data)[1] == 0) {average_training_duration_one_workout="__:__:__"} 
       else{
@@ -321,7 +337,7 @@ full_dataset<-reactive({
   sqlWorkoutTimeMedian <- reactive({
     if(input$select_workout_overview == "") {median_training_duration_one_workout="__:__:__"} 
     else{
-      workout_data<- full_dataset() %>% filter(description == input$select_workout_overview) %>% summarise(durchschnitt = median(dauer))
+      workout_data<- full_dataset() %>% filter(designation == input$select_workout_overview) %>% summarise(durchschnitt = median(dauer))
       
       if(dim(workout_data)[1] == 0) {median_training_duration_one_workout="__:__:__"} 
       else{
@@ -334,7 +350,7 @@ full_dataset<-reactive({
     list_certain_workout <- list()
     if(input$select_workout_overview == "") {sdworkouttime="__:__:__"} 
     else{
-      workout_data<- full_dataset() %>% filter(description == input$select_workout_overview) %>% summarise(durchschnitt = sd(dauer))
+      workout_data<- full_dataset() %>% filter(designation == input$select_workout_overview) %>% summarise(durchschnitt = sd(dauer))
       workout_data<- as.numeric(workout_data)
       sdworkouttime= round_hms(hms(minutes = workout_data), secs=1)
         if(is.na(sdworkouttime)){sdworkouttime="__:__:__"} else {sdworkouttime}
@@ -342,14 +358,14 @@ full_dataset<-reactive({
    
 ##############Most used Workout##############
    sqlMostWorkout <- reactive ({
-     workout_data <- full_dataset()%>%summarise(max=max(description))
+     workout_data <- full_dataset()%>%summarise(max=max(designation))
      most_workout <- toString(workout_data)
    }) 
   
 ##############Scatter Plot Histogramm##############
   sqlOutputScatterPlot<- reactive({
     
-    workout_data <- full_dataset() %>% select(group, description, dauer, date)%>% filter(description == input$select_workout_overview)
+    workout_data <- full_dataset() %>% select(group, designation, dauer, date)%>% filter(designation == input$select_workout_overview)
     #workout_data$dauer <- as.numeric( workout_data$dauer)
     data.frame(workout_data)   
   })
@@ -358,12 +374,12 @@ full_dataset<-reactive({
     workout_data <- full_dataset() %>% group_by(group) %>% summarise(anzahl= n())
   })
   sqlOutputTreeMapWorkout<- reactive({
-    workout_data <- full_dataset() %>% group_by(description, group) %>% summarise(anzahl= n())
+    workout_data <- full_dataset() %>% group_by(designation, group) %>% summarise(anzahl= n())
   })
 ##############Average Training duration grouped Bar chart##############
   sqlOutputBar <- reactive({
-    workout_data <- full_dataset() %>% group_by(description, group) %>% summarise(durchschnitt = mean(dauer),.groups = "keep")
-    workout_data_2 <- full_dataset() %>% group_by(description) %>% summarise(durchschnitt = mean(dauer)) %>% add_column(.after="description",group = "Alle") %>% bind_rows(workout_data)
+    workout_data <- full_dataset() %>% group_by(designation, group) %>% summarise(durchschnitt = mean(dauer),.groups = "keep")
+    workout_data_2 <- full_dataset() %>% group_by(designation) %>% summarise(durchschnitt = mean(dauer)) %>% add_column(.after="designation",group = "Alle") %>% bind_rows(workout_data)
     workout_data_2$durchschnitt <- round(workout_data_2$durchschnitt)
     workout_data_2$durchschnitt <- as.numeric(workout_data_2$durchschnitt)
     data.frame(workout_data_2)
@@ -388,7 +404,9 @@ full_dataset<-reactive({
                    width = 225,
                    multiple = F)  
   })
-  
+  output$ui_outputName <- renderText({
+    sqlSidebarName()
+  })
   
   observeEvent(input$reset_athlete,{
     reset("sidebar")
@@ -462,7 +480,7 @@ full_dataset<-reactive({
   })
 ##############Average und SD BarPlot##############
   output$ui_outputBarPlot <- renderPlot({
-    ggplot(data=sqlBarPlot(), aes(x=description, y=durchschnitt)) +
+    ggplot(data=sqlBarPlot(), aes(x=designation, y=durchschnitt)) +
       geom_bar(stat="identity", color="blue", fill="white")+
       geom_text(aes(label=durchschnitt), hjust=1.6, color="black", size=3.5)+
       geom_errorbar(aes(ymin=durchschnitt-sd, ymax=durchschnitt+sd), width=.2,
@@ -494,7 +512,7 @@ full_dataset<-reactive({
   output$ui_OutputTreeMap <- renderPlot({
     suppressMessages(
     treemap(sqlOutputTreeMapWorkout(),
-            index=c("description", "group"),
+            index=c("designation", "group"),
             vSize="anzahl",
             type="index",
             palette = "Dark2", # RColorBrewer::display.brewer.all() für Farbpalettenwahl
@@ -512,7 +530,7 @@ full_dataset<-reactive({
 
 ##############Grouped BarPlot Average all Athlete##############
   output$ui_OutputGroupedBar <- renderPlot({
-    ggplot(sqlOutputBar(), aes(fill=description, y=durchschnitt, x=group, label=durchschnitt)) + 
+    ggplot(sqlOutputBar(), aes(fill=designation, y=durchschnitt, x=group, label=durchschnitt)) + 
       geom_bar(position="dodge", stat="identity")+
       geom_text(position=position_dodge(width = 0.9), size = 5)
       
