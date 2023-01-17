@@ -64,20 +64,10 @@ ui <- dashboardPage(
         
            conditionalPanel("input.sidebar === 'athlete'",
                             uiOutput("ui_outputPerson"),
-                            uiOutput("ui_outputWorkout_1"),
                             column(12, align = "center",verbatimTextOutput("ui_outputName")),
-                            tags$head(
-                              tags$style(
-                                HTML(
-                                  "#Number_out {
-       font-family:  'Source Sans Pro','Helvetica Neue',Helvetica,Arial,sans-serif;
-       font-size: 14px;
-        }"
-                                )
-                              )
-                            ),
-                          
-                            
+                            uiOutput("ui_outputWorkout_1"),
+                            column(12, align = "center",verbatimTextOutput("ui_outputWorkoutAthlete")),
+
                             ## reset side bar selection
                             actionButton('reset_athlete',
                                          'Reset',
@@ -91,7 +81,7 @@ ui <- dashboardPage(
       div( 
         conditionalPanel("input.sidebar === 'overview'",
                          uiOutput("ui_outputWorkout_2"),
-                         
+                         column(12, align = "center",verbatimTextOutput("ui_outputWorkoutOverview")),
                          ## reset side bar selection
                          actionButton('reset_overview',
                                       'Reset',
@@ -101,6 +91,9 @@ ui <- dashboardPage(
   ),
 ##############################################Mainfield##############################################
   dashboardBody(
+    tags$head(
+      tags$link(rel = "stylesheet", type = "text/css", href= "head.css")
+    ),
     tabItems(
 ##############Athlete Mainfield##############
       tabItem(tabName = "athlete",
@@ -198,12 +191,20 @@ full_dataset<-reactive({
     b<-b
     
   })  
-  
+##############Textfeld Name Sidebar##############
   sqlSidebarName<- reactive({
+    if(input$select_athlete== "" ||length(input$select_athlete)==0) {workout_data=" "} else {
     workout_data <- full_dataset() %>% filter(id== input$select_athlete) %>% select(first_name, last_name)%>% unite("name",first_name,last_name, sep = " " , remove = TRUE) %>% distinct(name)
     workout_data<-as.character(workout_data)
+    }
   })
-  
+##############Textfeld Workout Sidebar##############
+  sqlSidebarWorkout<- reactive({
+    if(input$select_workout_athlete== "" ||length(input$select_workout_athlete)==0) {workout_data=" "} else {
+      workout_data <- full_dataset() %>% filter(designation== input$select_workout_athlete) %>% select(description)%>% distinct(description)
+      workout_data<-as.character(workout_data)
+    }
+  })  
 #############Average Time per Athlete#############
   sqlAthleteAll <- reactive({
     if(input$select_athlete== "" ||length(input$select_athlete)==0) {average_training_duration="__:__:__"} 
@@ -321,7 +322,14 @@ full_dataset<-reactive({
     
      }})
   
-##############################################Tab2 Daten##############################################   
+##############################################Tab2 Daten############################################## 
+##############Textfeld Workout Sidebar##############
+  sqlSidebarWorkoutOverview<- reactive({
+    if( input$select_workout_overview == "" ||length( input$select_workout_overview)==0) {workout_data=" "} else {
+      workout_data <- full_dataset() %>% filter(designation ==  input$select_workout_overview) %>% select(description)%>% distinct(description)
+      workout_data<-as.character(workout_data)
+    }
+  })  
 #############Average Training time Specific Workout ####################
   sqlWorkoutTime <- reactive({
     if(input$select_workout_overview == "") {average_training_duration_one_workout="__:__:__"} 
@@ -404,8 +412,13 @@ full_dataset<-reactive({
                    width = 225,
                    multiple = F)  
   })
+##############Dropdownmenu Name Tab1##############
   output$ui_outputName <- renderText({
     sqlSidebarName()
+  })
+##############Dropdownmenu Workout Tab1##############
+  output$ui_outputWorkoutAthlete <- renderText({
+    sqlSidebarWorkout()
   })
   
   observeEvent(input$reset_athlete,{
@@ -421,7 +434,10 @@ full_dataset<-reactive({
                    width = 225,
                    multiple = F)  
   })  
-  
+##############Dropdownmenu Workout Tab1##############
+  output$ui_outputWorkoutOverview <- renderText({
+    sqlSidebarWorkoutOverview()
+  })  
 ##############################################Tab1 ValueBox##############################################
 ##############Athlete Average##############
   output$ui_outputVBoxDurchschnittAthlete <- renderValueBox({

@@ -3,7 +3,7 @@
     "path": "~/GitHub/Business-Analytics/TrainingsApp/training_app/app.R",
     "project_path": "app.R",
     "type": "r_source",
-    "hash": "3460461393",
+    "hash": "2057905786",
     "contents": "",
     "dirty": false,
     "created": 1673879461717.0,
@@ -12,15 +12,15 @@
     "properties": {
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "393,20",
-        "scrollLine": "379"
+        "cursorPosition": "437,25",
+        "scrollLine": "416"
     },
     "folds": "",
-    "lastKnownWriteTime": 1673882934,
+    "lastKnownWriteTime": 1673973922,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1673882934609,
+    "last_content_update": 1673973922680,
     "read_only": false,
     "read_only_alternatives": []
 }
