@@ -158,7 +158,7 @@ ui <- dashboardPage(
   )
 )
 #########################################
-server <- function(input, output) {
+server <- function(input, output, session) {
   
 full_dataset<-reactive({ 
   conn <- DBI::dbConnect(RSQLite::SQLite(),  "db.sqlite3") #Definition der COnnection von der SQLitedatei "db.sqlite3" mit der Variable "verbindung
@@ -405,7 +405,7 @@ full_dataset<-reactive({
   
 ##############Dropdownmenu Workout Tab1##############
   output$ui_outputWorkout_1 <- renderUI({
-    selectizeInput("select_workout_athlete",
+    selectInput("select_workout_athlete",
                    "Select or search for a workout", 
                    choices =  sqlOutputWorkout(), 
                    selected = NULL,
@@ -421,9 +421,12 @@ full_dataset<-reactive({
     sqlSidebarWorkout()
   })
   
+##############Resetbutton Funktion Tab 1##############   
   observeEvent(input$reset_athlete,{
-    reset("sidebar")
-  })
+    updateSelectInput(session, "select_athlete", choices=sqlOutputPerson(), selected = NULL)
+    updateSelectInput(session, "select_workout_athlete", choices=sqlOutputWorkout(), selected = NULL)
+    })
+
 ##############################################Tab2 Sidebar##############################################
 ##############Dropdownmenu Workout Tab2##############   
   output$ui_outputWorkout_2 <- renderUI({
@@ -438,6 +441,11 @@ full_dataset<-reactive({
   output$ui_outputWorkoutOverview <- renderText({
     sqlSidebarWorkoutOverview()
   })  
+  
+##############Resetbutton Funktion Tab 2##############   
+  observeEvent(input$reset_overview,{
+    updateSelectInput(session, "select_workout_overview", choices=sqlOutputWorkout(), selected = NULL)
+  })
 ##############################################Tab1 ValueBox##############################################
 ##############Athlete Average##############
   output$ui_outputVBoxDurchschnittAthlete <- renderValueBox({
@@ -480,7 +488,7 @@ full_dataset<-reactive({
   }) 
 ##############Most Workout##############
   output$ui_outputMostWorkout <- renderValueBox({
-    valueBox(sqlMostWorkout(), tags$p("Most completed workout",tags$br(), " of all athletes", style = "font-size: 150%;"), icon = icon("ranking-star"), color = "light-blue", 
+    valueBox(sqlMostWorkout(), tags$p("Most completed",tags$br(), "workout of",tags$br(), "all athletes", style = "font-size: 150%;"), icon = icon("ranking-star"), color = "light-blue", 
              href = NULL)
   })
 ##############################################Tab1 Plots##############################################
