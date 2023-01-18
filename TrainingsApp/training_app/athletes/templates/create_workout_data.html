@@ -1,11 +1,12 @@
 {% extends 'main.html' %}
 {% block content %}
   <h1>Enter your workout data</h1>
-  <hr>
-  <h4>Enter data using the following form. Choose an athlete and a workout. For creating data smash the button.</h4>
   <br/>
+  <p>Enter data using the following form. Choose an athlete and a workout. For creating data smash the button.</p>
+  <hr>
+  <h3>Enter your data</h3>
   {% if submitted %}
-      <h5>Your workout was created successfully!!</h5>
+      <h5>Your workout was created successfully!</h5>
       <br/>
       <a href="{% url 'create_workout_data'%}" class="btn btn-info btn-lg active" role="button">Create further data</a>
   {% else %}
