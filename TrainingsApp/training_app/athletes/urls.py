@@ -16,6 +16,4 @@ urlpatterns = [
     path('update_workout/<workout_id>', views.update_workout, name='update_workout'),
     path('update_workout_data/<workout_data_id>', views.update_workout_data, name='update_workout_data'),
     path('athletes_workout/<athlete_id>', views.athletes_workout, name='athletes_workout'),
-    
-    
 ]

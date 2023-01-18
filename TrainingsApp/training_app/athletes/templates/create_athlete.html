@@ -1,6 +1,6 @@
 {% extends 'main.html' %}
 {% block content %}
-  <h1>Create your Athlete</h1>
+  <h1>Create your athlete</h1>
   <br/>
   <p>Create your athlete using the following form. Enter the data and smash the button.</p>
   <hr>
@@ -9,13 +9,13 @@
   {% if submitted %}
       <h5>Your athlete was created successfully!!</h5>
       <br/>
-      <a href="{% url 'create_athlete'%}" class="btn btn-info btn-lg active" role="button">Create Further Athletes</a>
+      <a href="{% url 'create_athlete'%}" class="btn btn-info btn-lg active" role="button">Create further athletes</a>
   {% else %}
       <form action="" method=POST>
           {% csrf_token %}
           {{ form.as_p }}
           </br>
-          <input type="submit" value="Create Your Athlete" class="btn btn-info btn-lg active">
+          <input type="submit" value="Create your athlete" class="btn btn-info btn-lg active">
       </form>
   {%endif%}
 {% endblock %}
