@@ -4,9 +4,20 @@ from .models import Athletes
 from .models import Workout
 from .models import Workout_data
 
-#Create Athletes Form
+
 
 class AthletesForm(ModelForm):
+    '''
+    A class to create a form from database model 'athletes'
+    ModelForm
+        Django helper class to create a form from a model
+    fields = '__all__'
+        Is required, cause all fields of the model are needed for the model
+    labels
+        define the label of the specific field that is displayed
+    widgets
+        contain css class and placeholder if the field isn't filled
+    '''
     class Meta:
         model = Athletes
         fields = '__all__'
@@ -27,6 +38,17 @@ class AthletesForm(ModelForm):
         }
 
 class WorkoutForm(ModelForm):
+    '''
+    A class to create a form from database model 'workouts'
+    ModelForm
+        Django helper class to create a form from a model
+    fields = '__all__'
+        Is required, cause all fields of the model are needed for the model
+    labels
+        define the label of the specific field that is displayed
+    widgets
+        contain css class and placeholder if the field isn't filled
+    '''
     class Meta:
         model = Workout
         fields = '__all__'
@@ -42,6 +64,17 @@ class WorkoutForm(ModelForm):
         }
 
 class WorkoutDataForm(ModelForm):
+    '''
+    A class to create a form from database model 'workout_data'
+    ModelForm
+        Django helper class to create a form from a model
+    fields = '__all__'
+        Is required, cause all fields of the model are needed for the model
+    labels
+        define the label of the specific field that is displayed
+    widgets
+        contain css class and placeholder if the field isn't filled
+    '''
     class Meta:
         model = Workout_data
         fields = '__all__'

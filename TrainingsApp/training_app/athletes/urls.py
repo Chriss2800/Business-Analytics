@@ -1,6 +1,8 @@
 from django.urls import path
 from . import views
 
+# Define all URL paths that are used by the application
+# .views links the view from view.py that is used for rendering 
 urlpatterns = [
     path('', views.index, name='index'),
     path('create_athlete', views.create_athlete, name='create_athlete'),
