@@ -274,20 +274,21 @@ full_dataset<-reactive({
       #berechnung des durchschnitt der Trainingszeit des ausgewählten Athleten und der Workoutart (num)
       workout_data <- full_dataset() %>% filter(designation == input$select_workout_athlete & id == input$select_athlete)
       
-    #if(dim(workout_data)[1] == 0) {average_training_duration_athlete_workout="__:__:__"} 
-          #else{ 
+    if(dim(workout_data)[1] == 0) {average_training_duration_athlete_workout="__:__:__"} #Verhinderung von Error durch leere Daten
+          else{ 
       workout_data <- workout_data %>%summarise(mean(dauer))
       workout_data <- as.numeric(workout_data)
       average_training_duration_athlete_workout <-  round_hms(hms(minutes = workout_data), secs=1)#Runden auf 1sekunde
-    }})
+    }}})
    
 ##############Most used Workout##############
    sqlMostWorkoutAthlete <- reactive ({
      if(input$select_athlete== "" ||length(input$select_athlete)==0){most_workout <- "-"} #Verhinderung von Error durch leere Daten
      else {
       #Ausgabe des meistgenutzten Workouts eins Athleten(string)
-      workout_data <- full_dataset()%>%filter(id == input$select_athlete) %>%summarise(max=max(designation))
-      most_workout <- toString(workout_data)
+      workout_data <- data.frame(full_dataset()%>%filter(id == input$select_athlete)%>%group_by(designation)%>%count(designation))    
+      workout_data <- workout_data%>%slice(which.max(n))
+      workout_data <- workout_data$designation
         }})
 
 ##############BMI##############
@@ -433,8 +434,9 @@ full_dataset<-reactive({
 ##############Most used Workout##############
    sqlMostWorkout <- reactive ({
     #Ausgabe meist durchgefühtes Training aller Athleten (string)
-     workout_data <- full_dataset()%>%summarise(max=max(designation))
-     most_workout <- toString(workout_data)
+     workout_data <- data.frame(full_dataset()%>%group_by(designation)%>%count(designation))    
+     workout_data <- workout_data%>%slice(which.max(n))
+     workout_data <- workout_data$designation
    }) 
   
 ##############Scatter Plot Histogramm##############
@@ -587,7 +589,7 @@ full_dataset<-reactive({
 ##############Workout Distribution Spider Plot##############
   output$ui_outputSpiderPlot <- renderPlot({
     if(length(sqlSpiderPlot())>=3){
-        radarchart(sqlSpiderPlot(), axistype = 2,
+        radarchart(sqlSpiderPlot(), axistype = 1,
                 pcol=rgb(0.2,0.5,0.5,0.9) , pfcol=rgb(0.2,0.5,0.5,0.5) , plwd=4 ,
                 cglcol="grey", cglty=1, axislabcol = "black", caxislabels=seq(0,20,5), cglwd=0.8,
                 vlcex=0.9)
