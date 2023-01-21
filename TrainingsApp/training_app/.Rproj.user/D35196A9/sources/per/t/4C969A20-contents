@@ -97,7 +97,6 @@ ui <- dashboardPage(
     tabItems(
 ##############Athlete Mainfield##############
       tabItem(tabName = "athlete",
-              h2("Hello Athlete"),
               fluidRow(
                 valueBoxOutput("ui_outputVBoxDurchschnittAthlete",width = 3),
                 valueBoxOutput("ui_outputVBoxDurchschnittAthleteWorkout", width = 3),
@@ -110,12 +109,12 @@ ui <- dashboardPage(
                 plotOutput("ui_outputSpiderPlot")
                 ),
                        box(
-                         title = "Average & SD", background = "navy", solidHeader = TRUE,
+                         title = "Average & Standard Deviation", background = "navy", solidHeader = TRUE,
                          collapsible = TRUE,
                          plotOutput("ui_outputBarPlot")
                 ),
                       box(
-                        title = "Histogramm of the athletes workouts", background = "navy", solidHeader = TRUE, width = 12,
+                        title = "Histogramm of the athletes selected workout", background = "navy", solidHeader = TRUE, width = 12,
                         collapsible = TRUE,
                         plotOutput("ui_outputHistogram")
                       )
@@ -127,7 +126,6 @@ ui <- dashboardPage(
             ),
 ##############Overview Mainfield##############
       tabItem(tabName = "overview",
-              h2("Hello Overalluser"),
               fluidRow(
                 valueBoxOutput("ui_outputVBoxDurchschnittOneWorkout", width = 3),
                 valueBoxOutput("ui_outputVBoxMedianOneWorkout", width = 3),
@@ -135,12 +133,12 @@ ui <- dashboardPage(
                 valueBoxOutput("ui_outputMostWorkout", width = 3)
               ),
               fluidRow(box(
-                title = "Distribution of all performed trainings", background = "navy", solidHeader = TRUE,
+                title = "Distribution of all performed workouts", background = "navy", solidHeader = TRUE,
                 collapsible = TRUE,
                 plotOutput("ui_OutputTreeMap")
                 ),
                       box(
-                        title = "Histogramm of all done specific workout", background = "navy", solidHeader = TRUE,
+                        title = "Histogramm of all performed selected workout", background = "navy", solidHeader = TRUE,
                         collapsible = TRUE,
                         plotOutput("ui_OutputScatterPlot")
                       )
@@ -396,7 +394,7 @@ full_dataset<-reactive({
 ##############Dropdownmenu Athlete##############
   output$ui_outputPerson <- renderUI({
     selectizeInput("select_athlete",
-                   "Select or search for a athlete", 
+                   "Select or search a athlete", 
                    choices =  sqlOutputPerson(), 
                    selected = NULL,
                    width = 225,
@@ -406,7 +404,7 @@ full_dataset<-reactive({
 ##############Dropdownmenu Workout Tab1##############
   output$ui_outputWorkout_1 <- renderUI({
     selectInput("select_workout_athlete",
-                   "Select or search for a workout", 
+                   "Select or search a workout", 
                    choices =  sqlOutputWorkout(), 
                    selected = NULL,
                    width = 225,
@@ -431,7 +429,7 @@ full_dataset<-reactive({
 ##############Dropdownmenu Workout Tab2##############   
   output$ui_outputWorkout_2 <- renderUI({
     selectizeInput("select_workout_overview",
-                   "Select or search for a workout", 
+                   "Select or search a workout", 
                    choices =  sqlOutputWorkout(), 
                    selected = NULL,
                    width = 225,
