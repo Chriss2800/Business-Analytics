@@ -363,7 +363,7 @@ full_dataset<-reactive({
     else{
       #Dataframe für barplot mit errorbar, durchschnittzeit und Standard Deviation pro Workoutart des ausgewählten Athleten 
       workout_data <- full_dataset() %>% filter(id == input$select_athlete) %>% group_by(designation) %>% summarise(durchschnitt = mean(dauer), sd=sd(dauer))
-      workout_data$durchschnitt<-as.numeric(workout_data$durchschnitt)
+      workout_data$durchschnitt<-round(as.numeric(workout_data$durchschnitt),0) # durchschnitt runden und als numeric darstellen
       data.frame(workout_data)
     
   }})
@@ -427,7 +427,7 @@ full_dataset<-reactive({
       #Ausgabe Standard Deviation aller Trainingseinheiten aller Athleten einer Workoutart (num)
       workout_data<- full_dataset() %>% filter(designation == input$select_workout_overview) %>% summarise(durchschnitt = sd(dauer))
       workout_data<- as.numeric(workout_data)
-      sdworkouttime= round_hms(hms(minutes = workout_data), secs=1)#Runden auf 1sekunde
+      sdworkouttime<- round_hms(hms(minutes = workout_data), secs=1)#Runden auf 1sekunde
         if(is.na(sdworkouttime)){sdworkouttime="__:__:__"} else {sdworkouttime}
       }})
    
@@ -443,7 +443,7 @@ full_dataset<-reactive({
   sqlOutputScatterPlot<- reactive({
     #Dataframe, date,dauer und workoutart aller Athleten 
     workout_data <- full_dataset() %>% select(group, designation, dauer, date)%>% filter(designation == input$select_workout_overview)
-    #workout_data$dauer <- as.numeric( workout_data$dauer)
+    workout_data$date <- as.Date(workout_data$date)
     data.frame(workout_data)   
   })
 ##############Workout Distribution TreeMap##############
@@ -598,19 +598,21 @@ full_dataset<-reactive({
 ##############Average und SD BarPlot##############
   output$ui_outputBarPlot <- renderPlot({
     ggplot(data=sqlBarPlot(), aes(x=designation, y=durchschnitt)) +
-      geom_bar(stat="identity", color="blue", fill="white")+
-      geom_text(aes(label=durchschnitt), hjust=1.6, color="black", size=3.5)+
+      geom_bar(stat="identity", color="navy", fill="white")+
+      geom_text(aes(label=durchschnitt),y=-0.01*max(sqlBarPlot()$durchschnitt), hjust=1, color="black", size=5)+
       geom_errorbar(aes(ymin=durchschnitt-sd, ymax=durchschnitt+sd), width=.2,
                     position=position_dodge(.9))+
+      ylab("average (minutes)")+
       coord_flip()
   })
-##############Histogram##############
+##############Histogram of athlete&selectec workout##############
   output$ui_outputHistogram <- renderPlot({
     ggplot(sqlHistogram(), aes(x=date, y=dauer)) +
       geom_line( color="#69b3a2") +
-      geom_point(shape=21, color="black", fill="#69b3a2", size=6) +
+      geom_point(shape=21, color="black", fill="#69b3a2", size=4.5) +
       theme_ipsum()+
       ylim(0,NA)+
+      ylab("duration (min)")+
       xlab("")
   })
     
@@ -623,6 +625,7 @@ full_dataset<-reactive({
     ggplot(sqlOutputScatterPlot(), aes(x=date, y=dauer, color= group )) + 
       geom_point(size=6) +
       ylim(0, NA) +
+      ylab("duration (min)")+
       theme_ipsum()
   })
   
@@ -650,7 +653,9 @@ full_dataset<-reactive({
   output$ui_OutputGroupedBar <- renderPlot({
     ggplot(sqlOutputBar(), aes(fill=designation, y=durchschnitt, x=group, label=durchschnitt)) + 
       geom_bar(position="dodge", stat="identity")+
-      geom_text(position=position_dodge(width = 0.9), size = 5)
+      geom_text(position=position_dodge(width = 0.9), size = 5)+
+      ylab("average (min)")+
+      xlab("person")
       
   })
   
