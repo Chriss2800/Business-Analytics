@@ -19,11 +19,11 @@ install.packages("shinyjs")
 ```
 
 ### Packages Django
-Die entsprechenden Packages für die Web Appikation stehen in der requirements.txt und können mit:
+Die entsprechenden Packages für die Web Applikation stehen in der requirements.txt und können mit:
 ```
-py -m pip install -r requirements.txt
+pip install -r requirements.txt
 ```
-installiert werden.
+im Terminal unter ~\Business-Analytics\TrainingsApp\training_app installiert werden.
 
 
 ### Shiny Server starten
