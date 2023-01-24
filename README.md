@@ -39,7 +39,7 @@ Wenn beide Applikationen korrekt gestartet wurden, kann die Startseite auf http:
 Um direkt auf den Shiny Server zu gelangen, muss http://127.0.0.1:9999 genutzt werden, sollte die Port Definierung mit .Rprofile zuvor funktioniert haben.
 
 ## Projektaufteilung
-!Dies ist nur eine sporadische Aufteilung, da die meiste Arbeit während der Vorlesungszeit in ständiger Rücksprache im Team entstanden ist.
+Dies ist nur eine sporadische Aufteilung, da die meiste Arbeit während der Vorlesungszeit in ständiger Rücksprache im Team entstanden ist.
 
 Django Webapplikation + Database --> Kai Horlacher
 Shiny Server + Datenverarbeitung + Plot --> Cornelius Fichtner & Christoph Mattmann
