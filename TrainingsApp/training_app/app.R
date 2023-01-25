@@ -38,13 +38,13 @@ ui <- dashboardPage(
                                notificationItem("Home", icon = icon("house"), status = "primary",
                                                 href = 'http://127.0.0.1:8000/'),                             
                                notificationItem("Create Athlete", icon = icon("person"), status = "primary",
-                                                href = 'http://127.0.0.1:8000/create_athlete/'),
+                                                href = 'http://127.0.0.1:8000/create_athlete'),
                                notificationItem("Create Training", icon = icon("dumbbell"), status = "primary",
-                                                href = 'http://127.0.0.1:8000/create_course/'),
+                                                href = 'http://127.0.0.1:8000/create_workout'),
                                notificationItem("Create Workout", icon = icon("pen-to-square"), status = "primary",
-                                                href = 'http://127.0.0.1:8000/create_training_data/'),
+                                                href = 'http://127.0.0.1:8000/create_workout_data'),
                                notificationItem("View Workout", icon = icon("list"), status = "primary",
-                                                href = 'http://127.0.0.1:8000/workout_list')
+                                                href = 'http://127.0.0.1:8000/workout_data_list')
                                ),
                   dropdownMenu(type = "notification",
                                badgeStatus = NULL,#keine Zahlen (Anzahl der NotificationItems) hinter dem Icon
